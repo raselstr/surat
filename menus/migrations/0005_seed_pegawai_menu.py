@@ -19,7 +19,7 @@ def seed_pegawai_menu(apps, schema_editor):
         nama="Pegawai",
         defaults={
             "url_name": "pegawai_list",
-            "icon": "ti ti-id-badge-2",
+            "icon": "ti ti-users",
             "urutan": 30,
             "aktif": True,
         },
