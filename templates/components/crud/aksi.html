@@ -1,0 +1,37 @@
+<div class="crud-row-actions">
+  {% url update_url_name record.pk as update_url %}
+  {% url delete_url_name record.pk as delete_url %}
+  {% if table.extra_context.use_crud_modal %}
+    <button
+      type="button"
+      class="btn btn-icon btn-sm btn-light-primary"
+      title="Edit"
+      data-crud-modal-title="Edit Data"
+      hx-get="{{ update_url }}"
+      hx-target="#crud-modal-body"
+      hx-swap="innerHTML"
+      data-bs-toggle="modal"
+      data-bs-target="#crudModal">
+      <i class="ti ti-edit"></i>
+    </button>
+    <button
+      type="button"
+      class="btn btn-icon btn-sm btn-light-danger"
+      title="Hapus"
+      data-crud-modal-title="Hapus Data"
+      hx-get="{{ delete_url }}"
+      hx-target="#crud-modal-body"
+      hx-swap="innerHTML"
+      data-bs-toggle="modal"
+      data-bs-target="#crudModal">
+      <i class="ti ti-trash"></i>
+    </button>
+  {% else %}
+    <a class="btn btn-icon btn-sm btn-light-primary" href="{{ update_url }}" title="Edit">
+      <i class="ti ti-edit"></i>
+    </a>
+    <a class="btn btn-icon btn-sm btn-light-danger" href="{{ delete_url }}" title="Hapus">
+      <i class="ti ti-trash"></i>
+    </a>
+  {% endif %}
+</div>

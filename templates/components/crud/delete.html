@@ -1,0 +1,27 @@
+<form
+  method="post"
+  action="{{ delete_action }}"
+  {% if use_modal %}
+    hx-post="{{ delete_action }}"
+    hx-target="#crud-modal-body"
+    hx-swap="innerHTML"
+  {% endif %}
+  class="crud-delete-form">
+  {% csrf_token %}
+  <div class="crud-delete-icon">
+    <i class="ti ti-trash"></i>
+  </div>
+  <h5 class="mb-2">Hapus Data?</h5>
+  <p class="text-muted mb-0">Data <strong>{{ object }}</strong> akan dihapus dari sistem.</p>
+  <div class="{% if use_modal %}modal-footer{% else %}d-flex justify-content-end gap-2{% endif %} px-0 pb-0 mt-4">
+    {% if use_modal %}
+      <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">Batal</button>
+    {% else %}
+      <a href="{{ url_list }}" class="btn btn-light-secondary">Batal</a>
+    {% endif %}
+    <button type="submit" class="btn btn-danger">
+      <i class="ti ti-trash"></i>
+      <span>Hapus</span>
+    </button>
+  </div>
+</form>

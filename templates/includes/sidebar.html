@@ -1,0 +1,122 @@
+{% load static %}
+
+<!-- [ Sidebar Menu ] start -->
+<nav class="pc-sidebar">
+  <div class="navbar-wrapper">
+    <div class="m-header">
+      <a href="/" class="b-brand">
+        <img src="{% static 'assets/images/logo-dark.svg' %}" alt="" class="logo logo-lg" />
+      </a>
+    </div>
+    <div class="navbar-content">
+      <ul class="pc-navbar">
+        <li class="pc-item pc-caption">
+          <label>Dashboard</label>
+          <i class="ti ti-dashboard"></i>
+        </li>
+
+        <li class="pc-item {% if request.path == '/' %}active{% endif %}">
+          <a href="/" class="pc-link">
+            <span class="pc-micon"><i class="ti ti-dashboard"></i></span>
+            <span class="pc-mtext">Halaman Depan</span>
+          </a>
+        </li>
+
+        {% if menu_data %}
+          {% for item in menu_data %}
+            <li class="pc-item pc-caption">
+              <label>{{ item.menu.nama }}</label>
+              <i class="{{ item.menu.icon }}"></i>
+            </li>
+            <li class="pc-item pc-hasmenu {% for submenu in item.submenus %}{% if active_submenu == submenu.url_name or request.path == submenu.resolved_url %}active pc-trigger{% endif %}{% endfor %}">
+              <a href="#!" class="pc-link">
+                <span class="pc-micon"><i class="{{ item.menu.icon }}"></i></span>
+                <span class="pc-mtext">{{ item.menu.nama }}</span>
+                <span class="pc-arrow"><i class="ti ti-chevron-right"></i></span>
+              </a>
+              <ul class="pc-submenu">
+                {% for submenu in item.submenus %}
+                  <li class="pc-item {% if active_submenu == submenu.url_name or request.path == submenu.resolved_url %}active{% endif %}">
+                    <a class="pc-link" href="{{ submenu.resolved_url }}">
+                      <span class="pc-submenu-icon"><i class="{{ submenu.icon|default:'ti ti-circle' }}"></i></span>
+                      <span class="pc-mtext">{{ submenu.nama }}</span>
+                    </a>
+                  </li>
+                {% endfor %}
+              </ul>
+            </li>
+          {% endfor %}
+        {% endif %} 
+
+        <li class="pc-item pc-caption">
+          <label>Akun</label>
+          <i class="ti ti-user"></i>
+        </li>
+        <li class="pc-item pc-hasmenu">
+          <a href="#!" class="pc-link">
+            <span class="pc-micon"><i class="ti ti-user-circle"></i></span>
+            <span class="pc-mtext">User</span>
+            <span class="pc-arrow"><i class="ti ti-chevron-right"></i></span>
+          </a>
+          <ul class="pc-submenu">
+            {% if request.user.is_authenticated %}
+              {% if request.user.is_superuser %}
+                <li class="pc-item {% if request.path == '/user/' %}active{% endif %}">
+                  <a class="pc-link" href="{% url 'user_list' %}">
+                    <span class="pc-submenu-icon"><i class="ti ti-users"></i></span>
+                    <span class="pc-mtext">Daftar User</span>
+                  </a>
+                </li>
+                <li class="pc-item">
+                  <a class="pc-link" href="{% url 'admin:index' %}">
+                    <span class="pc-submenu-icon"><i class="ti ti-dashboard"></i></span>
+                    <span class="pc-mtext">Admin</span>
+                  </a>
+                </li>
+                <li class="pc-item">
+                  <a class="pc-link" href="{% url 'admin:password_change' %}">
+                    <span class="pc-submenu-icon"><i class="ti ti-key"></i></span>
+                    <span class="pc-mtext">Ganti Password</span>
+                  </a>
+                </li>
+                <li class="pc-item">
+                  <a class="pc-link" href="{% url 'logout' %}">
+                    <span class="pc-submenu-icon"><i class="ti ti-logout"></i></span>
+                    <span class="pc-mtext">Logout</span>
+                  </a>
+                </li>
+              {% else %}
+                <li class="pc-item">
+                  <a class="pc-link" href="{% url 'password_change' %}">
+                    <span class="pc-submenu-icon"><i class="ti ti-key"></i></span>
+                    <span class="pc-mtext">Ganti Password</span>
+                  </a>
+                </li>
+                <li class="pc-item">
+                  <a class="pc-link" href="{% url 'logout' %}">
+                    <span class="pc-submenu-icon"><i class="ti ti-logout"></i></span>
+                    <span class="pc-mtext">Logout</span>
+                  </a>
+                </li>
+              {% endif %}
+            {% else %}
+              <li class="pc-item">
+                <a class="pc-link" href="{% url 'login' %}">
+                  <span class="pc-submenu-icon"><i class="ti ti-login"></i></span>
+                  <span class="pc-mtext">Login</span>
+                </a>
+              </li>
+              <li class="pc-item">
+                <a class="pc-link" href="{% url 'register' %}">
+                  <span class="pc-submenu-icon"><i class="ti ti-user-plus"></i></span>
+                  <span class="pc-mtext">Register</span>
+                </a>
+              </li>
+            {% endif %}
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<!-- [ Sidebar Menu ] end -->

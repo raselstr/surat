@@ -1,0 +1,234 @@
+<form id="excel-import-form" method="post" enctype="multipart/form-data" action="{{ import_url }}" data-next-url="{{ request.GET.next|default:'/' }}" data-modal="true">
+  {% csrf_token %}
+  <div class="mb-3">
+    <label class="form-label" for="excel-file">Pilih file Excel</label>
+    <input id="excel-file" type="file" name="file" class="form-control" accept=".xlsx,.xlsm,.xltx,.xltm,.csv" required>
+  </div>
+  <div class="d-flex flex-wrap gap-2">
+    <button type="submit" class="btn btn-primary" data-excel-action="preview">
+      <i class="ti ti-eye"></i>
+      <span>Preview</span>
+    </button>
+    <button type="button" id="excel-import-button" class="btn btn-success" disabled>
+      <i class="ti ti-upload"></i>
+      <span>Import Data</span>
+    </button>
+    <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">
+      <i class="ti ti-x"></i>
+      <span>Batal</span>
+    </button>
+  </div>
+</form>
+
+<div id="excel-import-errors" class="mt-4 d-none"></div>
+<div id="excel-preview" class="mt-4 d-none">
+  <div class="d-flex align-items-center justify-content-between mb-2">
+    <h6 class="mb-0">Preview Data</h6>
+    <span id="excel-preview-count" class="badge bg-light-primary text-primary"></span>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-sm table-bordered table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th style="width: 80px;">Baris</th>
+          <th style="width: 130px;">Status</th>
+          {% for column in columns %}
+            <th>{{ column }}</th>
+          {% endfor %}
+          <th>Pesan</th>
+        </tr>
+      </thead>
+      <tbody id="excel-preview-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var form = document.getElementById("excel-import-form");
+    var importButton = document.getElementById("excel-import-button");
+    var errorsEl = document.getElementById("excel-import-errors");
+    var previewEl = document.getElementById("excel-preview");
+    var previewBody = document.getElementById("excel-preview-body");
+    var previewCount = document.getElementById("excel-preview-count");
+    var columns = [
+      {% for column in columns %}
+        "{{ column|escapejs }}"{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    if (!form) {
+      return;
+    }
+
+    function showToast(level, message, title) {
+      if (window.appToast) {
+        window.appToast.show({ level: level, title: title, message: message });
+      }
+    }
+
+    function setBusy(button, isBusy) {
+      if (!button) {
+        return;
+      }
+
+      if (isBusy) {
+        button.dataset.originalHtml = button.innerHTML;
+        button.disabled = true;
+        button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Memproses...';
+        return;
+      }
+
+      button.disabled = false;
+      if (button.dataset.originalHtml) {
+        button.innerHTML = button.dataset.originalHtml;
+      }
+    }
+
+    function renderErrors(errors) {
+      var items = errors || [];
+      errorsEl.classList.toggle("d-none", items.length === 0);
+      errorsEl.innerHTML = "";
+
+      if (!items.length) {
+        return;
+      }
+
+      var listItems = items.map(function (error) {
+        var li = document.createElement("li");
+        li.textContent = error;
+        return li.outerHTML;
+      }).join("");
+
+      errorsEl.innerHTML = '<div class="alert alert-danger mb-0"><strong>Import belum bisa diproses.</strong><ul class="mb-0 mt-2">' + listItems + '</ul></div>';
+    }
+
+    function statusBadge(status) {
+      var classes = {
+        new: "bg-light-success text-success",
+        update: "bg-light-warning text-warning",
+        exists: "bg-light-secondary text-secondary",
+        error: "bg-light-danger text-danger"
+      };
+      var labels = {
+        new: "Baru",
+        update: "Update",
+        exists: "Dilewati",
+        error: "Error"
+      };
+
+      return '<span class="badge ' + (classes[status] || "bg-light-primary text-primary") + '">' + (labels[status] || status) + '</span>';
+    }
+
+    function renderPreview(rows) {
+      var data = rows || [];
+      previewEl.classList.toggle("d-none", data.length === 0);
+      previewBody.innerHTML = "";
+      previewCount.textContent = data.length + " baris";
+
+      data.forEach(function (item) {
+        var tr = document.createElement("tr");
+        var cells = [
+          "<td>" + item.row + "</td>",
+          "<td>" + statusBadge(item.status) + "</td>"
+        ];
+
+        columns.forEach(function (column) {
+          var value = item.data && item.data[column] != null ? item.data[column] : "";
+          var td = document.createElement("td");
+          td.textContent = value;
+          cells.push(td.outerHTML);
+        });
+
+        var messageTd = document.createElement("td");
+        messageTd.textContent = item.message || "";
+        cells.push(messageTd.outerHTML);
+        tr.innerHTML = cells.join("");
+        previewBody.appendChild(tr);
+      });
+    }
+
+    function submitExcel(action, triggerButton) {
+      var fileInput = form.querySelector('input[name="file"]');
+
+      if (!fileInput || !fileInput.files.length) {
+        renderErrors(["Pilih file Excel terlebih dahulu."]);
+        showToast("warning", "Pilih file Excel terlebih dahulu.", "Perhatian");
+        return;
+      }
+
+      var formData = new FormData(form);
+      formData.set("action", action);
+      setBusy(triggerButton, true);
+
+      fetch(form.action, {
+        method: "POST",
+        body: formData,
+        headers: {
+          "X-Requested-With": "XMLHttpRequest"
+        }
+      })
+        .then(function (response) {
+          return response.json().then(function (data) {
+            data.ok = response.ok;
+            return data;
+          });
+        })
+        .then(function (data) {
+          renderErrors(data.errors || []);
+
+          if (data.status === "preview") {
+            renderPreview(data.preview || []);
+            importButton.disabled = Boolean(data.has_errors);
+            showToast(
+              data.has_errors ? "warning" : "success",
+              data.has_errors ? "Masih ada data yang perlu diperbaiki." : "Preview berhasil dibaca. Data siap diimport.",
+              data.has_errors ? "Periksa Data" : "Berhasil"
+            );
+            return;
+          }
+
+          if (data.status === "success") {
+            document.body.dispatchEvent(new CustomEvent("crudSuccess", {
+              detail: {
+                level: "success",
+                title: "Berhasil",
+                message: data.message || "Data berhasil diimport."
+              }
+            }));
+            return;
+          }
+
+          importButton.disabled = true;
+          renderPreview(data.preview || []);
+          showToast("error", (data.errors || ["Import gagal."])[0], "Gagal");
+        })
+        .catch(function () {
+          renderErrors(["Terjadi kesalahan saat menghubungi server."]);
+          importButton.disabled = true;
+          showToast("error", "Terjadi kesalahan saat menghubungi server.", "Gagal");
+        })
+        .finally(function () {
+          setBusy(triggerButton, false);
+          if (action === "import") {
+            importButton.disabled = false;
+          }
+        });
+    }
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      submitExcel("preview", event.submitter || form.querySelector('[data-excel-action="preview"]'));
+    });
+
+    importButton.addEventListener("click", function () {
+      submitExcel("import", importButton);
+    });
+
+    form.querySelector('input[name="file"]').addEventListener("change", function () {
+      importButton.disabled = true;
+      renderPreview([]);
+      renderErrors([]);
+    });
+  })();
+</script>

@@ -1,0 +1,106 @@
+{% extends "pages/sample-page.html" %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock title %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'assets/crud/crud.css' %}">
+{% endblock extrastyle %}
+
+{% block content %}
+<div class="pc-container">
+  <div class="pc-content crud-page">
+    <div class="page-header">
+      <div class="page-block">
+        <div class="row align-items-center g-3">
+          <div class="col-md-8">
+            <div class="page-header-title">
+              <h5 class="m-b-10">{{ title }}</h5>
+            </div>
+            <ul class="breadcrumb">
+              <li class="breadcrumb-item"><a href="/">Home</a></li>
+              <li class="breadcrumb-item active" aria-current="page">{{ title }}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card crud-card">
+      <div class="card-header crud-toolbar">
+        <form method="get" class="crud-filter">
+          <div class="crud-permission-role">
+            <label for="role" class="form-label mb-1">Role</label>
+            <select id="role" name="role" class="form-select form-select-sm" onchange="this.form.submit()">
+              {% for role in roles %}
+                <option value="{{ role.pk }}" {% if selected_role and selected_role.pk == role.pk %}selected{% endif %}>{{ role.nama }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="card-body">
+        {% if selected_role %}
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="role" value="{{ selected_role.pk }}">
+            <div class="accordion crud-permission-accordion" id="permissionAccordion">
+              {% for group in permission_groups %}
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="heading-{{ group.menu.pk }}">
+                    <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#menu-{{ group.menu.pk }}" aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}" aria-controls="menu-{{ group.menu.pk }}">
+                      <i class="{{ group.menu.icon }} me-2"></i>
+                      {{ group.menu.nama }}
+                    </button>
+                  </h2>
+                  <div id="menu-{{ group.menu.pk }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" aria-labelledby="heading-{{ group.menu.pk }}" data-bs-parent="#permissionAccordion">
+                    <div class="accordion-body p-0">
+                      <div class="table-responsive">
+                        <table class="table table-sm table-hover align-middle mb-0 crud-permission-table">
+                          <thead>
+                            <tr>
+                              <th>Sub Menu</th>
+                              <th class="text-center">Lihat</th>
+                              <th class="text-center">Tambah</th>
+                              <th class="text-center">Edit</th>
+                              <th class="text-center">Hapus</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for item in group.submenus %}
+                              <tr>
+                                <td>
+                                  {% if item.submenu.icon %}<i class="{{ item.submenu.icon }} me-2"></i>{% endif %}
+                                  {{ item.submenu.nama }}
+                                  <div class="text-muted small">{{ item.submenu.url_name }}</div>
+                                </td>
+                                <td class="text-center"><input class="form-check-input" type="checkbox" name="can_view_{{ item.submenu.pk }}" {% if item.permission.can_view %}checked{% endif %}></td>
+                                <td class="text-center"><input class="form-check-input" type="checkbox" name="can_add_{{ item.submenu.pk }}" {% if item.permission.can_add %}checked{% endif %}></td>
+                                <td class="text-center"><input class="form-check-input" type="checkbox" name="can_edit_{{ item.submenu.pk }}" {% if item.permission.can_edit %}checked{% endif %}></td>
+                                <td class="text-center"><input class="form-check-input" type="checkbox" name="can_delete_{{ item.submenu.pk }}" {% if item.permission.can_delete %}checked{% endif %}></td>
+                              </tr>
+                            {% endfor %}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+            <div class="mt-3 text-end">
+              <button type="submit" class="btn btn-primary">
+                <i class="ti ti-device-floppy"></i>
+                <span>Simpan Hak Akses</span>
+              </button>
+            </div>
+          </form>
+        {% else %}
+          <div class="alert alert-info mb-0">Buat role terlebih dahulu sebelum mengatur hak akses menu.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

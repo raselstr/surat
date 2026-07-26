@@ -1,0 +1,34 @@
+{% extends "pages/sample-page.html" %}
+
+{% block content %}
+<div class="pc-container">
+  <div class="pc-content">
+    <div class="page-header">
+      <div class="page-block">
+        <div class="row align-items-center">
+          <div class="col-md-12">
+            <div class="page-header-title">
+              <h5 class="m-b-10">Export Excel</h5>
+            </div>
+            <ul class="breadcrumb">
+              <li class="breadcrumb-item"><a href="/">Home</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Export</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="card shadow-sm border-0">
+          <div class="card-body">
+            <p>Gunakan tombol di bawah untuk mengunduh data dalam format Excel.</p>
+            <a href="{{ request.path|slice:":-1" }}" class="btn btn-success">Unduh Excel</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

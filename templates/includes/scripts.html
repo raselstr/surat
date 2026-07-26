@@ -1,0 +1,22 @@
+{% load static %}
+
+<script src="{% static 'assets/js/plugins/popper.min.js' %}"></script>
+<script src="{% static 'assets/js/plugins/simplebar.min.js' %}"></script>
+<script src="{% static 'assets/js/plugins/bootstrap.min.js' %}"></script>
+<script src="{% static 'assets/js/config.js' %}"></script>
+<script src="{% static 'assets/js/pcoded.js' %}"></script>
+<script src="{% static 'assets/js/layoutTheme.js' %}"></script>
+<script src="{% static 'assets/app/app.js' %}"></script>
+
+{% if messages %}
+  <script>
+    window.addEventListener("DOMContentLoaded", function () {
+      {% for message in messages %}
+        window.appToast.show({
+          level: "{{ message.tags|default:'info'|escapejs }}",
+          message: "{{ message|escapejs }}"
+        });
+      {% endfor %}
+    });
+  </script>
+{% endif %}

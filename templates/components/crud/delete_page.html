@@ -1,0 +1,38 @@
+{% extends "pages/sample-page.html" %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock title %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'assets/crud/crud.css' %}">
+{% endblock extrastyle %}
+
+{% block content %}
+<div class="pc-container">
+  <div class="pc-content crud-page">
+    <div class="page-header">
+      <div class="page-block">
+        <div class="row align-items-center g-3">
+          <div class="col-md-12">
+            <div class="page-header-title">
+              <h5 class="m-b-10">{{ title }}</h5>
+            </div>
+            <ul class="breadcrumb">
+              <li class="breadcrumb-item"><a href="/">Home</a></li>
+              <li class="breadcrumb-item"><a href="{{ url_list }}">Data</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Hapus</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card crud-card">
+      <div class="card-body">
+        {% include "components/crud/delete.html" %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

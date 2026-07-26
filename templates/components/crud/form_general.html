@@ -1,0 +1,51 @@
+<form
+  method="post"
+  enctype="multipart/form-data"
+  action="{{ form_action }}"
+  {% if use_modal %}
+    hx-post="{{ form_action }}"
+    hx-target="#crud-modal-body"
+    hx-swap="innerHTML"
+    hx-encoding="multipart/form-data"
+  {% endif %}
+  novalidate>
+  {% csrf_token %}
+
+  {% if form.non_field_errors %}
+    <div class="alert alert-danger py-2">{{ form.non_field_errors }}</div>
+  {% endif %}
+
+  <div class="row g-3">
+    {% for field in form %}
+      <div class="col-md-6">
+        {% if field.field.widget.input_type == "checkbox" %}
+          <div class="form-check mt-4">
+            {{ field }}
+            <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          </div>
+        {% else %}
+          <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+        {% endif %}
+        {% if field.help_text %}
+          <div class="form-text">{{ field.help_text }}</div>
+        {% endif %}
+        {% if field.errors %}
+          <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="{% if use_modal %}modal-footer{% else %}d-flex justify-content-end gap-2{% endif %} px-0 pb-0 mt-4">
+    {% if use_modal %}
+      <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">Batal</button>
+    {% else %}
+      <a href="{{ url_list }}" class="btn btn-light-secondary">Batal</a>
+    {% endif %}
+    <button type="submit" class="btn btn-primary">
+      <i class="ti ti-device-floppy"></i>
+      <span>{{ submit_label|default:"Simpan Data" }}</span>
+    </button>
+  </div>
+</form>
