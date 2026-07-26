@@ -43,7 +43,7 @@ class SessionSecurityMiddleware:
         if path.startswith("/api/"):
             return True
 
-        if path in public_paths or path == "/favicon.ico":
+        if path in public_paths or path == "/sisurat.png":
             return True
 
         return False
