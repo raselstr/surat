@@ -25,10 +25,23 @@ class Eselon(models.Model):
     def __str__(self):
         return f"{self.eselon}"
 
+class Bidang(models.Model):
+    bidang = models.CharField(max_length=255)
+
+    class Meta:
+        verbose_name = "Bidang"
+        verbose_name_plural = "Bidang"
+        ordering = ["bidang"]
+
+    def __str__(self):
+        return f"{self.bidang}"
+
 class Pegawai(models.Model):
     nip = models.CharField(max_length=30, unique=True)
     nama = models.CharField(max_length=255)
     pangkat = models.ForeignKey(Pangkat, on_delete=models.CASCADE, related_name="pegawais")
+    eselon = models.ForeignKey(Eselon, on_delete=models.CASCADE, related_name="pegawais")
+    bidang = models.ForeignKey(Bidang, on_delete=models.CASCADE, related_name="pegawais")
     sub_opd = models.ForeignKey('opd.SubOPD', on_delete=models.CASCADE, related_name="pegawais")
 
     class Meta:
