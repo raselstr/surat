@@ -31,6 +31,8 @@ class IndonesianDateInput(forms.DateInput):
     def __init__(self, attrs=None, format=None):
         attrs = attrs or {}
         attrs.setdefault("placeholder", "dd/mm/yyyy")
+        attrs.setdefault("data-date-picker", "true")
+        attrs.setdefault("autocomplete", "off")
         super().__init__(attrs=attrs, format=format or "%d/%m/%Y")
 
 

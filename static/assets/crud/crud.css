@@ -198,6 +198,19 @@
   object-fit: cover;
 }
 
+.crud-date-input .form-control {
+  min-width: 0;
+}
+
+.crud-date-input .btn {
+  width: 38px;
+  padding-left: 0;
+  padding-right: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .crud-delete-form {
   text-align: center;
 }

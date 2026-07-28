@@ -124,10 +124,53 @@
     });
   }
 
+  function initDatePickers(scope) {
+    if (!window.flatpickr) {
+      return;
+    }
+
+    var root = scope || document;
+    root.querySelectorAll('input[data-date-picker="true"]').forEach(function (input) {
+      if (input.dataset.datePickerReady) {
+        return;
+      }
+      input.dataset.datePickerReady = "1";
+
+      var wrapper = input.parentElement;
+      if (!wrapper.classList.contains("crud-date-input")) {
+        wrapper = document.createElement("div");
+        wrapper.className = "input-group crud-date-input";
+        input.insertAdjacentElement("beforebegin", wrapper);
+        wrapper.appendChild(input);
+
+        var button = document.createElement("button");
+        button.type = "button";
+        button.className = "btn btn-outline-secondary";
+        button.setAttribute("aria-label", "Pilih tanggal");
+        button.innerHTML = '<i class="ti ti-calendar"></i>';
+        wrapper.appendChild(button);
+      }
+
+      var picker = flatpickr(input, {
+        allowInput: true,
+        dateFormat: "d/m/Y",
+        clickOpens: true
+      });
+
+      var trigger = wrapper.querySelector("button");
+      if (trigger) {
+        trigger.addEventListener("click", function () {
+          picker.open();
+        });
+      }
+    });
+  }
+
   function initCrudControls(scope) {
     initSelect2(scope);
     initImageInputs(scope);
     initLocalizedNumbers(scope);
+    initDatePickers(scope);
   }
 
   document.addEventListener("show.bs.modal", function (event) {
