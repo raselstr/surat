@@ -12,7 +12,6 @@ class OPD(models.Model):
     class Meta:
         verbose_name = "OPD"
         verbose_name_plural = "OPD"
-        ordering = ["kode"]
 
     def __str__(self):
         return self.nama
@@ -26,7 +25,6 @@ class SubOPD(models.Model):
     class Meta:
         verbose_name = "Sub OPD"
         verbose_name_plural = "Sub OPD"
-        ordering = ["kode"]
 
     def __str__(self):
         return f"{self.nama} ({self.opd.nama})"
@@ -138,7 +136,6 @@ class Pemda(models.Model):
     logo = models.ImageField(upload_to='pemda_logos/', null=True, blank=True)
 
     class Meta:
-        ordering = ['nama_pemda']
         verbose_name = 'Pemda'
         verbose_name_plural = 'Pemda'
 
@@ -248,7 +245,6 @@ class KopSurat(models.Model):
     
 
     class Meta:
-        ordering = ["pemda__nama_pemda"]
         verbose_name = "Kop Surat"
         verbose_name_plural = "Kop Surat"
 

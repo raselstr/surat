@@ -8,7 +8,6 @@ class Pangkat(models.Model):
     class Meta:
         verbose_name = "Pangkat"
         verbose_name_plural = "Pangkat"
-        ordering = ["golongan", "ruang"]
         constraints = [
             models.UniqueConstraint(
                 fields=['pangkat', 'golongan', 'ruang'],
@@ -28,7 +27,6 @@ class Eselon(models.Model):
     class Meta:
         verbose_name = "Eselon"
         verbose_name_plural = "Eselon"
-        ordering = ["urutan"]
 
     def __str__(self):
         return f"{self.eselon}"
@@ -41,7 +39,6 @@ class JenisJabatan(models.Model):
     class Meta:
         verbose_name = "Jenis Jabatan"
         verbose_name_plural = "Jenis Jabatan"
-        ordering = ["id"]
 
     def __str__(self):
         return self.nama
@@ -52,7 +49,6 @@ class StatusASN(models.Model):
     class Meta:
         verbose_name = "Status ASN"
         verbose_name_plural = "Status ASN"
-        ordering = ["id"]
 
     def __str__(self):
         return self.nama
@@ -63,7 +59,6 @@ class Bidang(models.Model):
     class Meta:
         verbose_name = "Bidang"
         verbose_name_plural = "Bidang"
-        ordering = ["id"]
 
     def __str__(self):
         return f"{self.bidang}"
@@ -75,7 +70,6 @@ class Tugas(models.Model):
     class Meta:
         verbose_name = "Tugas"
         verbose_name_plural = "Tugas"
-        ordering = ["id"]
 
     def __str__(self):
         return self.nama
@@ -91,7 +85,6 @@ class Tingkat(models.Model):
     class Meta:
         verbose_name ="Tingkat"
         verbose_name_plural = "Tingkat"
-        ordering = ["tingkat"]
     
     def __str__(self):
         return f"{self.tingkat}"
@@ -115,8 +108,7 @@ class Pegawai(models.Model):
     class Meta:
         verbose_name = "Pegawai"
         verbose_name_plural = "Pegawai"
-        ordering = ["nip"]
-
+        
     def __str__(self):
         return f"{self.nama} ({self.nip})"
 
