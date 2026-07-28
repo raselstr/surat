@@ -36,4 +36,3 @@ class PegawaiForm(BaseAppModelForm):
     class Meta:
         model = Pegawai
         fields = ["nip", "nama", "pangkat","eselon","bidang","tugas","jabatan","jenis_jabatan","status_asn","sub_opd"]
-

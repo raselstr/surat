@@ -67,3 +67,4 @@ class PegawaiListView(FullAccessCRUDView):
     url_list = "/pegawai/"
     url_action = "/pegawai/"
     url_action_pk = "/pegawai/"
+    enable_year_filter = False
