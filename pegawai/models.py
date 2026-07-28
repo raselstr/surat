@@ -80,17 +80,36 @@ class Tugas(models.Model):
     def __str__(self):
         return self.nama
 
+class Tingkat(models.Model):
+    tingkat = models.CharField(max_length=100, unique=True)
+    ket = models.CharField(max_length=200, null=True, blank=True)
+    pesawat = models.CharField(max_length=100, null=True, blank=True)
+    kapal = models.CharField(max_length=100, null=True, blank=True)
+    keretaapian = models.CharField(max_length=200, null=True, blank=True)
+    lainnya = models.CharField(max_length=200, null=True, blank=True)
+
+    class Meta:
+        verbose_name ="Tingkat"
+        verbose_name_plural = "Tingkat"
+        ordering = ["tingkat"]
+    
+    def __str__(self):
+        return f"{self.tingkat}"
+
 
 class Pegawai(models.Model):
     nip = models.CharField(max_length=30, unique=True)
     nama = models.CharField(max_length=255)
+    tgl_lahir = models.DateField(null=True, blank=True)
+    foto = models.ImageField(upload_to="pegawai/foto/", null=True, blank=True)
     pangkat = models.ForeignKey(Pangkat, on_delete=models.CASCADE, related_name="pegawais")
     eselon = models.ForeignKey(Eselon, on_delete=models.CASCADE, related_name="pegawais")
     bidang = models.ForeignKey(Bidang, on_delete=models.CASCADE, related_name="pegawais")
-    tugas = models.ManyToManyField(Tugas, related_name="pegawais", blank=True)
+    tugas = models.ForeignKey(Tugas, on_delete=models.CASCADE, related_name="pegawais")
     jabatan = models.CharField(max_length=255)
     jenis_jabatan = models.ForeignKey(JenisJabatan, on_delete=models.CASCADE, related_name="pegawais")
     status_asn = models.ForeignKey(StatusASN, on_delete=models.CASCADE, related_name="pegawais")
+    tingkat_spd = models.ForeignKey(Tingkat, on_delete=models.CASCADE, related_name="pegawais", null=True, blank=True)
     sub_opd = models.ForeignKey('opd.SubOPD', on_delete=models.CASCADE, related_name="pegawais")
 
     class Meta:
