@@ -44,3 +44,10 @@ def format_indonesian_number(value):
     if value is None:
         return ""
     return _format_indonesian_number(value)
+
+
+@register.filter
+def dict_get(dictionary, key):
+    if not dictionary:
+        return None
+    return dictionary.get(key)

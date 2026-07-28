@@ -30,6 +30,106 @@
     });
   }
 
+  function initImageInputs(scope) {
+    var root = scope || document;
+    root.querySelectorAll('input[type="file"][accept*="image"]').forEach(function (input) {
+      if (input.dataset.crudImagePreviewReady) {
+        return;
+      }
+      input.dataset.crudImagePreviewReady = "1";
+
+      input.addEventListener("change", function () {
+        var file = input.files && input.files[0];
+        if (!file || !file.type || file.type.indexOf("image/") !== 0) {
+          return;
+        }
+
+        var preview = input.parentElement.querySelector(".crud-image-preview");
+        if (!preview) {
+          preview = document.createElement("div");
+          preview.className = "crud-image-preview mt-2";
+          input.insertAdjacentElement("beforebegin", preview);
+        }
+        preview.style.width = "56px";
+        preview.style.height = "56px";
+        preview.style.maxWidth = "56px";
+        preview.style.maxHeight = "56px";
+        preview.style.overflow = "hidden";
+
+        preview.innerHTML = "";
+        var image = document.createElement("img");
+        image.alt = input.closest(".col-md-6")?.querySelector(".form-label")?.textContent || "Preview gambar";
+        image.width = 56;
+        image.height = 56;
+        image.style.width = "56px";
+        image.style.height = "56px";
+        image.style.maxWidth = "56px";
+        image.style.maxHeight = "56px";
+        image.style.objectFit = "cover";
+        image.src = URL.createObjectURL(file);
+        image.onload = function () {
+          URL.revokeObjectURL(image.src);
+        };
+        preview.appendChild(image);
+      });
+    });
+  }
+
+  function formatIndonesianNumber(value, integerOnly) {
+    var cleaned = String(value || "")
+      .replace(/[^0-9,.-]/g, "")
+      .replace(/\s+/g, "");
+
+    if (!cleaned) {
+      return "";
+    }
+
+    var isNegative = cleaned.charAt(0) === "-";
+    cleaned = cleaned.replace(/-/g, "");
+
+    var decimalPart = "";
+    if (!integerOnly && cleaned.indexOf(",") !== -1) {
+      var parts = cleaned.split(",");
+      cleaned = parts.shift();
+      decimalPart = parts.join("").replace(/\D/g, "");
+    }
+
+    var wholePart = cleaned.replace(/\./g, "").replace(/\D/g, "");
+    if (!wholePart) {
+      wholePart = "0";
+    }
+
+    wholePart = wholePart.replace(/^0+(?=\d)/, "");
+    wholePart = wholePart.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+    return (isNegative ? "-" : "") + wholePart + (decimalPart ? "," + decimalPart : "");
+  }
+
+  function initLocalizedNumbers(scope) {
+    var root = scope || document;
+    root.querySelectorAll('input[data-localized-number="true"]').forEach(function (input) {
+      if (input.dataset.localizedNumberReady) {
+        return;
+      }
+      input.dataset.localizedNumberReady = "1";
+
+      var integerOnly = input.dataset.integerOnly === "true";
+      if (input.value) {
+        input.value = formatIndonesianNumber(input.value, integerOnly);
+      }
+
+      input.addEventListener("blur", function () {
+        input.value = formatIndonesianNumber(input.value, integerOnly);
+      });
+    });
+  }
+
+  function initCrudControls(scope) {
+    initSelect2(scope);
+    initImageInputs(scope);
+    initLocalizedNumbers(scope);
+  }
+
   document.addEventListener("show.bs.modal", function (event) {
     if (event.target.id !== "crudModal") {
       return;
@@ -50,7 +150,7 @@
   });
 
   document.addEventListener("htmx:afterSwap", function (event) {
-    initSelect2(event.target);
+    initCrudControls(event.target);
   });
 
   document.body.addEventListener("crudSuccess", function (event) {
@@ -82,10 +182,10 @@
       });
     }
 
-    initSelect2(document.getElementById("crud-modal-body"));
+    initCrudControls(document.getElementById("crud-modal-body"));
   });
 
   document.addEventListener("DOMContentLoaded", function () {
-    initSelect2(document);
+    initCrudControls(document);
   });
 })();

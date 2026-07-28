@@ -35,4 +35,8 @@ class TugasForm(BaseAppModelForm):
 class PegawaiForm(BaseAppModelForm):
     class Meta:
         model = Pegawai
-        fields = ["nip", "nama", "pangkat","eselon","bidang","tugas","jabatan","jenis_jabatan","status_asn","sub_opd"]
+        fields = [
+            "nip", "nama", "tgl_lahir", "foto", "pangkat", "eselon", "bidang",
+            "tugas", "jabatan", "jenis_jabatan", "status_asn", "tingkat_spd",
+            "sub_opd",
+        ]

@@ -1,4 +1,6 @@
 import django_tables2 as tables
+from django.db import models
+from django.utils import timezone
 from django.utils.html import format_html
 from config.utils.formatting import format_indonesian_number, is_money_identifier
 
@@ -79,10 +81,64 @@ class BaseTable(tables.Table):
             if is_money_identifier(column_name):
                 return self._render_money_value
 
+            model_field = self._get_model_field(column_name)
+            if isinstance(model_field, models.ImageField):
+                return self._render_image_value
+
+            if isinstance(model_field, models.DateTimeField):
+                return self._render_datetime_value
+
+            if isinstance(model_field, models.DateField):
+                return self._render_date_value
+
         raise AttributeError(f"{self.__class__.__name__} has no attribute '{attr_name}'")
+
+    def _get_model_field(self, name):
+        model = getattr(getattr(self, "Meta", None), "model", None)
+
+        if model is None:
+            return None
+
+        try:
+            return model._meta.get_field(name)
+        except Exception:
+            return None
 
     def _render_money_value(self, value, **kwargs):
         return format_indonesian_number(value)
+
+    def _render_date_value(self, value, **kwargs):
+        if not value:
+            return "-"
+
+        return value.strftime("%d/%m/%Y")
+
+    def _render_datetime_value(self, value, **kwargs):
+        if not value:
+            return "-"
+
+        if timezone.is_aware(value):
+            value = timezone.localtime(value)
+
+        return value.strftime("%d/%m/%Y %H:%M")
+
+    def _render_image_value(self, value, **kwargs):
+        if not value or not getattr(value, "name", ""):
+            return "-"
+
+        try:
+            image_url = value.url
+        except Exception:
+            return "-"
+
+        return format_html(
+            (
+                '<img src="{}" alt="" class="crud-table-thumb" '
+                'width="32" height="32" '
+                'style="width:32px;height:32px;max-width:32px;max-height:32px;object-fit:cover;">'
+            ),
+            image_url,
+        )
 
     def render_no(self, bound_row):
         table = bound_row.table

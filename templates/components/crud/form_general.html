@@ -1,3 +1,5 @@
+{% load formatting %}
+
 <form
   method="post"
   enctype="multipart/form-data"
@@ -17,6 +19,7 @@
 
   <div class="row g-3">
     {% for field in form %}
+      {% with existing_file=form.existing_files|dict_get:field.name %}
       <div class="col-md-6">
         {% if field.field.widget.input_type == "checkbox" %}
           <div class="form-check mt-4">
@@ -25,7 +28,17 @@
           </div>
         {% else %}
           <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {% if existing_file.is_image and existing_file.url %}
+            <div class="crud-image-preview mb-2" style="width:56px;height:56px;max-width:56px;max-height:56px;overflow:hidden;">
+              <img src="{{ existing_file.url }}" alt="{{ field.label }}" width="56" height="56" style="width:56px;height:56px;max-width:56px;max-height:56px;object-fit:cover;">
+            </div>
+          {% endif %}
           {{ field }}
+          {% if existing_file and not existing_file.is_image and existing_file.url %}
+            <div class="form-text">
+              File saat ini: <a href="{{ existing_file.url }}" target="_blank" rel="noopener">{{ existing_file.name }}</a>
+            </div>
+          {% endif %}
         {% endif %}
         {% if field.help_text %}
           <div class="form-text">{{ field.help_text }}</div>
@@ -34,6 +47,7 @@
           <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
         {% endif %}
       </div>
+      {% endwith %}
     {% endfor %}
   </div>
 

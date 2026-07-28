@@ -54,5 +54,5 @@ class PegawaiTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Pegawai
-        fields = ("no","nip", "nama", "tgl_lahir","sub_opd","pangkat","eselon","bidang", "aksi")
+        fields = ("no", "foto", "nip", "nama", "tgl_lahir", "sub_opd", "pangkat", "eselon", "bidang", "aksi")
         order_by = ("eselon","nip")

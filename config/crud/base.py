@@ -186,90 +186,67 @@ class BaseCRUDView(ExcelMixin, ListView):
 
         return kwargs
 
-    def get_queryset(self):
-        qs = self.get_base_queryset()
-        qs = self.apply_active_year_filter(qs)
-        search = self.request.GET.get("search")
+    def get_search_relation_depth(self):
+        return 2
 
-        if not search:
-            return qs
+    def is_searchable_text_field(self, field):
+        return isinstance(
+            field,
+            (
+                models.CharField,
+                models.TextField,
+                models.EmailField,
+                models.URLField,
+                models.SlugField,
+            ),
+        )
 
-        model_fields = {
-            field.name: field
-            for field in self.model._meta.get_fields()
-            if getattr(field, "name", None)
-        }
-        field_names = set(model_fields.keys())
+    def get_searchable_lookups(self, model=None, prefix="", depth=None, seen=None):
+        model = model or self.model
+        depth = self.get_search_relation_depth() if depth is None else depth
+        seen = set() if seen is None else seen
+        lookups = []
+
+        if model in seen:
+            return lookups
+
+        seen.add(model)
+
+        for field in model._meta.get_fields():
+            if not getattr(field, "concrete", False):
+                continue
+
+            if self.is_searchable_text_field(field):
+                lookups.append(f"{prefix}{field.name}__icontains")
+                continue
+
+            if depth <= 0:
+                continue
+
+            if not isinstance(field, (models.ForeignKey, models.OneToOneField)):
+                continue
+
+            related_model = getattr(field.remote_field, "model", None)
+            if related_model is None or isinstance(related_model, str):
+                continue
+
+            lookups.extend(
+                self.get_searchable_lookups(
+                    model=related_model,
+                    prefix=f"{prefix}{field.name}__",
+                    depth=depth - 1,
+                    seen=seen.copy(),
+                )
+            )
+
+        return lookups
+
+    def build_search_filter(self, search):
         filters = Q()
 
-        def is_relation(field_name):
-            return getattr(model_fields.get(field_name), "is_relation", False)
+        for lookup in self.get_searchable_lookups():
+            filters |= Q(**{lookup: search})
 
-        def add_text_filter(field_name, related_lookup=None):
-            nonlocal filters
-
-            if field_name not in field_names:
-                return
-
-            if is_relation(field_name):
-                if related_lookup:
-                    filters |= Q(**{related_lookup: search})
-                return
-
-            filters |= Q(**{f"{field_name}__icontains": search})
-
-        if 'nama' in field_names:
-            filters |= Q(nama__icontains=search)
-        if 'nip' in field_names:
-            filters |= Q(nip__icontains=search)
-        if 'jabatan' in field_names:
-            filters |= Q(jabatan__icontains=search)
-        add_text_filter('pangkat', 'pangkat__pangkat__icontains')
-        add_text_filter('eselon', 'eselon__eselon__icontains')
-        add_text_filter('jenis_jabatan', 'jenis_jabatan__nama__icontains')
-        add_text_filter('status', 'status__nama__icontains')
-        add_text_filter('opd', 'opd__nama__icontains')
-        add_text_filter('tingkat', 'tingkat__tingkat__icontains')
-        if 'tugas' in field_names:
-            filters |= Q(tugas__icontains=search)
-        if 'nama_pemda' in field_names:
-            filters |= Q(nama_pemda__icontains=search)
-        if 'nama_dinas' in field_names:
-            filters |= Q(nama_dinas__icontains=search)
-        if 'alamat' in field_names:
-            filters |= Q(alamat__icontains=search)
-        if 'telepon' in field_names:
-            filters |= Q(telepon__icontains=search)
-        if 'email' in field_names:
-            filters |= Q(email__icontains=search)
-        if 'username' in field_names:
-            filters |= Q(username__icontains=search)
-        if 'first_name' in field_names:
-            filters |= Q(first_name__icontains=search)
-        if 'last_name' in field_names:
-            filters |= Q(last_name__icontains=search)
-        add_text_filter('pemda', 'pemda__nama_pemda__icontains')
-        if 'font_family' in field_names:
-            filters |= Q(font_family__icontains=search)
-        if 'nomor_spt' in field_names:
-            filters |= Q(nomor_spt__icontains=search)
-        if 'url' in field_names:
-            filters |= Q(url__icontains=search)
-        add_text_filter('menu', 'menu__nama__icontains')
-        if 'icon' in field_names:
-            filters |= Q(icon__icontains=search)
-        add_text_filter('lokasi', 'lokasi__lokasi__icontains')
-        if 'kota' in field_names:
-            filters |= Q(kota__icontains=search)
-        add_text_filter('jenis_spd', 'jenis_spd__nama__icontains')
-        add_text_filter('jenis_kegiatan', 'jenis_kegiatan__nama__icontains')
-        add_text_filter('jenis_transportasi', 'jenis_transportasi__nama__icontains')
-        add_text_filter('penandatangan', 'penandatangan__nama__icontains')
-        if 'spt' in field_names and is_relation('spt'):
-            filters |= (
-                Q(spt__tempat_tujuan__icontains=search) |
-                Q(spt__kota_tujuan__lokasi__icontains=search)
-            )
         money_field_types = (
             models.DecimalField,
             models.FloatField,
@@ -293,7 +270,18 @@ class BaseCRUDView(ExcelMixin, ListView):
                     filters |= Q(**{field_name: money_value})
             except (TypeError, ValueError):
                 pass
-        
+
+        return filters
+
+    def get_queryset(self):
+        qs = self.get_base_queryset()
+        qs = self.apply_active_year_filter(qs)
+        search = self.request.GET.get("search")
+
+        if not search:
+            return qs
+
+        filters = self.build_search_filter(search)
 
         if filters:
             qs = qs.filter(filters)

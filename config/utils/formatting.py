@@ -1,7 +1,20 @@
 from decimal import Decimal, InvalidOperation
 import re
 
-MONEY_IDENTIFIER_KEYWORDS = {"biaya", "uang", "nominal", "harga", "tarif", "pagu"}
+MONEY_IDENTIFIER_KEYWORDS = {
+    "anggaran",
+    "biaya",
+    "dana",
+    "harga",
+    "jumlah",
+    "nilai",
+    "nominal",
+    "pagu",
+    "saldo",
+    "tarif",
+    "total",
+    "uang",
+}
 
 # Indonesian number to words (terbilang)
 TERBILANG_ONES = [
