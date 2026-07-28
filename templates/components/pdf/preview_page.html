@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: #f4f7fb;
+      color: #111827;
+    }
+    .preview-layout {
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .preview-toolbar,
+    .preview-frame-shell {
+      background: #fff;
+      border: 1px solid #dbe4f0;
+      border-radius: 8px;
+    }
+    .preview-toolbar {
+      margin: 0 auto 12px;
+      max-width: 1180px;
+      padding: 14px;
+    }
+    .print-scale-toolbar {
+      background: #fff8eb;
+      border: 1px solid #f6d69a;
+      border-radius: 8px;
+      margin-top: 12px;
+      padding: 12px;
+    }
+    .print-scale-toolbar .form-range {
+      accent-color: #d97706;
+    }
+    .preview-frame-shell {
+      margin: 0 auto;
+      max-width: 1180px;
+      overflow: hidden;
+    }
+    .print-preview-frame {
+      background: #eef2f7;
+      border: 0;
+      display: block;
+      height: calc(100vh - 330px);
+      min-height: 520px;
+      width: 100%;
+    }
+    @media (max-width: 768px) {
+      .preview-layout {
+        padding: 8px;
+      }
+      .print-preview-frame {
+        height: calc(100vh - 430px);
+        min-height: 420px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="preview-layout">
+    <section class="preview-toolbar">
+      <div class="d-flex flex-column flex-lg-row gap-2 justify-content-between">
+        <div>
+          <h1 class="h5 mb-1">{{ title }}</h1>
+          <div class="text-muted small">{{ preview_description }}</div>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+          <button
+            type="button"
+            class="btn btn-primary"
+            data-print-preview-action="print"
+            data-frame-id="{{ frame_id }}">
+            {{ print_button_label }}
+          </button>
+          <a href="{{ open_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary">
+            Buka Dokumen
+          </a>
+        </div>
+      </div>
+
+      <div
+        class="print-scale-toolbar"
+        data-print-scale-toolbar
+        data-frame-id="{{ frame_id }}"
+        role="status">
+        <div class="fw-semibold mb-1">Skala dan margin cetak</div>
+
+        <div class="row g-2 align-items-center">
+          <div class="col-12 col-lg-auto">
+            <label class="form-label mb-0" for="{{ frame_id }}-scale-range">Skala dokumen</label>
+          </div>
+          <div class="col-12 col-lg">
+            <input id="{{ frame_id }}-scale-range" class="form-range mb-0" type="range" min="75" max="120" step="1" value="100" data-print-scale-range>
+          </div>
+          <div class="col-8 col-sm-4 col-lg-2">
+            <div class="input-group input-group-sm">
+              <input class="form-control" type="number" min="75" max="120" step="1" value="100" inputmode="numeric" data-print-scale-input>
+              <span class="input-group-text">%</span>
+            </div>
+          </div>
+          <div class="col-4 col-sm-3 col-lg-auto">
+            <button type="button" class="btn btn-sm btn-outline-secondary w-100" data-print-scale-reset>Reset</button>
+          </div>
+        </div>
+
+        <div class="small text-muted mt-2">
+          Default dokumen:
+          <span class="fw-semibold" data-print-scale-default-label>100%</span>
+        </div>
+        <div class="small mt-1">
+          Skala aktif:
+          <span class="fw-semibold text-dark" data-print-scale-current-label>100%</span>
+          <span class="text-muted" data-print-scale-state-label>(default)</span>
+        </div>
+
+        <div class="fw-semibold mt-3 mb-1">Margin cetak</div>
+        <div class="row g-2">
+          <div class="col-6 col-lg-3">
+            <label class="form-label mb-1" for="{{ frame_id }}-margin-top">Atas</label>
+            <div class="input-group input-group-sm">
+              <input id="{{ frame_id }}-margin-top" class="form-control" type="number" min="0" max="50" step="0.5" value="18" inputmode="decimal" data-print-margin-input="top">
+              <span class="input-group-text">mm</span>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <label class="form-label mb-1" for="{{ frame_id }}-margin-right">Kanan</label>
+            <div class="input-group input-group-sm">
+              <input id="{{ frame_id }}-margin-right" class="form-control" type="number" min="0" max="50" step="0.5" value="18" inputmode="decimal" data-print-margin-input="right">
+              <span class="input-group-text">mm</span>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <label class="form-label mb-1" for="{{ frame_id }}-margin-bottom">Bawah</label>
+            <div class="input-group input-group-sm">
+              <input id="{{ frame_id }}-margin-bottom" class="form-control" type="number" min="0" max="50" step="0.5" value="20" inputmode="decimal" data-print-margin-input="bottom">
+              <span class="input-group-text">mm</span>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <label class="form-label mb-1" for="{{ frame_id }}-margin-left">Kiri</label>
+            <div class="input-group input-group-sm">
+              <input id="{{ frame_id }}-margin-left" class="form-control" type="number" min="0" max="50" step="0.5" value="18" inputmode="decimal" data-print-margin-input="left">
+              <span class="input-group-text">mm</span>
+            </div>
+          </div>
+        </div>
+        <div class="mt-2">
+          <button type="button" class="btn btn-sm btn-outline-secondary" data-print-margin-reset>Reset margin</button>
+        </div>
+        <div class="small text-muted mt-2">
+          Default margin:
+          <span class="fw-semibold" data-print-margin-default-label>Atas 18 | Kanan 18 | Bawah 20 | Kiri 18 mm</span>
+        </div>
+        <div class="small mt-1">
+          Margin aktif:
+          <span class="fw-semibold text-dark" data-print-margin-current-label>Atas 18 | Kanan 18 | Bawah 20 | Kiri 18 mm</span>
+          <span class="text-muted" data-print-margin-state-label>(default)</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="preview-frame-shell">
+      <iframe
+        id="{{ frame_id }}"
+        class="print-preview-frame"
+        src="{{ iframe_src }}"
+        title="{{ title }}">
+      </iframe>
+    </section>
+  </main>
+
+  <script>
+    function notifyPreview(message) {
+      window.alert(message);
+    }
+
+    function printPreviewFrame(frameId) {
+      const frame = document.getElementById(frameId);
+      const frameWindow = frame?.contentWindow;
+      if (!frameWindow) {
+        notifyPreview('Dokumen masih dimuat. Coba cetak beberapa saat lagi.');
+        return;
+      }
+      frameWindow.focus();
+      frameWindow.print();
+    }
+
+    function clampPrintScalePercent(value, fallback = 100) {
+      const numericValue = Number(value);
+      if (!Number.isFinite(numericValue)) {
+        return fallback;
+      }
+      return Math.min(120, Math.max(75, Math.round(numericValue)));
+    }
+
+    function toPrintScaleDecimal(scalePercent) {
+      return (scalePercent / 100).toFixed(2).replace(/0+$/, '').replace(/\.$/, '');
+    }
+
+    function clampPrintMarginMm(value, fallback = 0) {
+      const numericValue = Number(value);
+      if (!Number.isFinite(numericValue)) {
+        return fallback;
+      }
+      return Math.min(50, Math.max(0, Math.round(numericValue * 10) / 10));
+    }
+
+    function formatPrintMarginMm(value) {
+      return String(clampPrintMarginMm(value)).replace(/\.0$/, '');
+    }
+
+    function normalizePrintMargins(margins = {}, fallback = {}) {
+      const normalizedFallback = {
+        top: clampPrintMarginMm(fallback.top, 18),
+        right: clampPrintMarginMm(fallback.right, 18),
+        bottom: clampPrintMarginMm(fallback.bottom, 20),
+        left: clampPrintMarginMm(fallback.left, 18),
+      };
+      return {
+        top: clampPrintMarginMm(margins.top, normalizedFallback.top),
+        right: clampPrintMarginMm(margins.right, normalizedFallback.right),
+        bottom: clampPrintMarginMm(margins.bottom, normalizedFallback.bottom),
+        left: clampPrintMarginMm(margins.left, normalizedFallback.left),
+      };
+    }
+
+    function serializePrintMargins(margins) {
+      const normalizedMargins = normalizePrintMargins(margins);
+      return [
+        formatPrintMarginMm(normalizedMargins.top),
+        formatPrintMarginMm(normalizedMargins.right),
+        formatPrintMarginMm(normalizedMargins.bottom),
+        formatPrintMarginMm(normalizedMargins.left),
+      ].join('|');
+    }
+
+    function parsePrintMargins(value, fallback = {}) {
+      if (!value) {
+        return normalizePrintMargins({}, fallback);
+      }
+      const [top, right, bottom, left] = String(value).split('|');
+      return normalizePrintMargins({ top, right, bottom, left }, fallback);
+    }
+
+    function formatPrintMarginsLabel(margins) {
+      const normalizedMargins = normalizePrintMargins(margins);
+      return [
+        `Atas ${formatPrintMarginMm(normalizedMargins.top)}`,
+        `Kanan ${formatPrintMarginMm(normalizedMargins.right)}`,
+        `Bawah ${formatPrintMarginMm(normalizedMargins.bottom)}`,
+        `Kiri ${formatPrintMarginMm(normalizedMargins.left)} mm`,
+      ].join(' | ');
+    }
+
+    function getPrintScaleToolbar(frameId) {
+      return document.querySelector(`[data-print-scale-toolbar][data-frame-id="${frameId}"]`);
+    }
+
+    function getPrintPreviewDocument(frameId) {
+      const frame = document.getElementById(frameId);
+      return frame?.contentDocument || null;
+    }
+
+    function isPrintPreviewLoaded(frameId) {
+      const previewDocument = getPrintPreviewDocument(frameId);
+      const previewLocation = previewDocument?.location?.href || '';
+      return Boolean(previewDocument?.body && previewLocation && previewLocation !== 'about:blank');
+    }
+
+    function getPreviewScalePercent(frameId, fallback = 100) {
+      const previewDocument = getPrintPreviewDocument(frameId);
+      if (!previewDocument) {
+        return fallback;
+      }
+      const datasetScale = previewDocument.body?.dataset.currentScalePercent;
+      if (datasetScale) {
+        return clampPrintScalePercent(datasetScale, fallback);
+      }
+      const scaleValue = previewDocument.defaultView
+        ?.getComputedStyle(previewDocument.documentElement)
+        ?.getPropertyValue('--content-scale')
+        ?.trim()
+        ?.replace(/['"]/g, '');
+      const numericScale = Number(scaleValue);
+      if (Number.isFinite(numericScale) && numericScale > 0) {
+        return clampPrintScalePercent(numericScale * 100, fallback);
+      }
+      return fallback;
+    }
+
+    function getPreviewMargins(frameId, fallback = {}) {
+      const previewDocument = getPrintPreviewDocument(frameId);
+      const normalizedFallback = normalizePrintMargins({}, fallback);
+      if (!previewDocument) {
+        return normalizedFallback;
+      }
+      const previewStyles = previewDocument.defaultView
+        ?.getComputedStyle(previewDocument.documentElement);
+      return normalizePrintMargins({
+        top: previewStyles?.getPropertyValue('--document-margin-top')?.trim()?.replace(/mm$/i, ''),
+        right: previewStyles?.getPropertyValue('--document-margin-right')?.trim()?.replace(/mm$/i, ''),
+        bottom: previewStyles?.getPropertyValue('--document-margin-bottom')?.trim()?.replace(/mm$/i, ''),
+        left: previewStyles?.getPropertyValue('--document-margin-left')?.trim()?.replace(/mm$/i, ''),
+      }, normalizedFallback);
+    }
+
+    function applyPrintScaleToPreview(frameId, scalePercent, options = {}) {
+      const previewDocument = getPrintPreviewDocument(frameId);
+      if (!previewDocument?.documentElement || !previewDocument?.body) {
+        return false;
+      }
+      const normalizedScale = clampPrintScalePercent(scalePercent);
+      previewDocument.documentElement.style.setProperty('--content-scale', toPrintScaleDecimal(normalizedScale));
+      previewDocument.body.dataset.currentScalePercent = String(normalizedScale);
+      if (options.forcePrintScale) {
+        previewDocument.body.dataset.forcePrintScale = 'true';
+      } else {
+        delete previewDocument.body.dataset.forcePrintScale;
+      }
+      return true;
+    }
+
+    function applyPrintMarginsToPreview(frameId, margins, options = {}) {
+      const previewDocument = getPrintPreviewDocument(frameId);
+      if (!previewDocument?.documentElement || !previewDocument?.body) {
+        return false;
+      }
+      const normalizedMargins = normalizePrintMargins(margins);
+      previewDocument.documentElement.style.setProperty('--document-margin-top', `${formatPrintMarginMm(normalizedMargins.top)}mm`);
+      previewDocument.documentElement.style.setProperty('--document-margin-right', `${formatPrintMarginMm(normalizedMargins.right)}mm`);
+      previewDocument.documentElement.style.setProperty('--document-margin-bottom', `${formatPrintMarginMm(normalizedMargins.bottom)}mm`);
+      previewDocument.documentElement.style.setProperty('--document-margin-left', `${formatPrintMarginMm(normalizedMargins.left)}mm`);
+      if (options.forcePrintMargins) {
+        previewDocument.body.dataset.forcePrintMargins = 'true';
+      } else {
+        delete previewDocument.body.dataset.forcePrintMargins;
+      }
+      return true;
+    }
+
+    function syncPrintScaleToolbar(toolbar, scalePercent) {
+      const normalizedScale = clampPrintScalePercent(scalePercent);
+      const defaultScale = clampPrintScalePercent(toolbar.dataset.defaultScalePercent, normalizedScale);
+      toolbar.querySelector('[data-print-scale-range]').value = String(normalizedScale);
+      toolbar.querySelector('[data-print-scale-input]').value = String(normalizedScale);
+      toolbar.querySelector('[data-print-scale-default-label]').textContent = `${defaultScale}%`;
+      toolbar.querySelector('[data-print-scale-current-label]').textContent = `${normalizedScale}%`;
+      toolbar.querySelector('[data-print-scale-state-label]').textContent = normalizedScale === defaultScale ? '(default)' : '(disesuaikan)';
+    }
+
+    function syncPrintMarginToolbar(toolbar, margins) {
+      const normalizedMargins = normalizePrintMargins(margins);
+      const defaultMargins = parsePrintMargins(toolbar.dataset.defaultMargins, normalizedMargins);
+      ['top', 'right', 'bottom', 'left'].forEach(function (side) {
+        toolbar.querySelector(`[data-print-margin-input="${side}"]`).value = formatPrintMarginMm(normalizedMargins[side]);
+      });
+      toolbar.querySelector('[data-print-margin-default-label]').textContent = formatPrintMarginsLabel(defaultMargins);
+      toolbar.querySelector('[data-print-margin-current-label]').textContent = formatPrintMarginsLabel(normalizedMargins);
+      toolbar.querySelector('[data-print-margin-state-label]').textContent = serializePrintMargins(normalizedMargins) === serializePrintMargins(defaultMargins)
+        ? '(default)'
+        : '(disesuaikan)';
+    }
+
+    function initializePrintScaleToolbar(container) {
+      const toolbar = container?.querySelector('[data-print-scale-toolbar]');
+      if (!toolbar) {
+        return;
+      }
+      const frameId = toolbar.dataset.frameId;
+      const frame = document.getElementById(frameId);
+      if (!frame) {
+        return;
+      }
+      const syncFromPreview = () => {
+        const currentScale = getPreviewScalePercent(frameId);
+        const currentMargins = getPreviewMargins(frameId);
+        if (isPrintPreviewLoaded(frameId)) {
+          toolbar.dataset.defaultScalePercent = String(currentScale);
+          toolbar.dataset.defaultMargins = serializePrintMargins(currentMargins);
+        }
+        syncPrintScaleToolbar(toolbar, currentScale);
+        syncPrintMarginToolbar(toolbar, currentMargins);
+        applyPrintScaleToPreview(frameId, currentScale, { forcePrintScale: true });
+        applyPrintMarginsToPreview(frameId, currentMargins, { forcePrintMargins: true });
+      };
+      frame.addEventListener('load', syncFromPreview);
+      syncFromPreview();
+    }
+
+    document.addEventListener('click', function (evt) {
+      const resetMarginButton = evt.target.closest('[data-print-margin-reset]');
+      if (resetMarginButton) {
+        const toolbar = resetMarginButton.closest('[data-print-scale-toolbar]');
+        const frameId = toolbar.dataset.frameId;
+        const defaultMargins = parsePrintMargins(toolbar.dataset.defaultMargins);
+        syncPrintMarginToolbar(toolbar, defaultMargins);
+        applyPrintMarginsToPreview(frameId, defaultMargins, { forcePrintMargins: true });
+        return;
+      }
+      const resetScaleButton = evt.target.closest('[data-print-scale-reset]');
+      if (resetScaleButton) {
+        const toolbar = resetScaleButton.closest('[data-print-scale-toolbar]');
+        const frameId = toolbar.dataset.frameId;
+        const defaultScale = clampPrintScalePercent(toolbar.dataset.defaultScalePercent, 100);
+        syncPrintScaleToolbar(toolbar, defaultScale);
+        applyPrintScaleToPreview(frameId, defaultScale, { forcePrintScale: true });
+        return;
+      }
+      const printButton = evt.target.closest('[data-print-preview-action="print"]');
+      if (!printButton) {
+        return;
+      }
+      const frameId = printButton.dataset.frameId;
+      const toolbar = getPrintScaleToolbar(frameId);
+      const scalePercent = clampPrintScalePercent(toolbar.querySelector('[data-print-scale-input]')?.value, getPreviewScalePercent(frameId));
+      const marginValues = normalizePrintMargins({
+        top: toolbar.querySelector('[data-print-margin-input="top"]')?.value,
+        right: toolbar.querySelector('[data-print-margin-input="right"]')?.value,
+        bottom: toolbar.querySelector('[data-print-margin-input="bottom"]')?.value,
+        left: toolbar.querySelector('[data-print-margin-input="left"]')?.value,
+      }, getPreviewMargins(frameId));
+      applyPrintScaleToPreview(frameId, scalePercent, { forcePrintScale: true });
+      applyPrintMarginsToPreview(frameId, marginValues, { forcePrintMargins: true });
+      printPreviewFrame(frameId);
+    });
+
+    document.addEventListener('input', function (evt) {
+      const scaleInput = evt.target.closest('[data-print-scale-range], [data-print-scale-input]');
+      if (!scaleInput) {
+        const marginInput = evt.target.closest('[data-print-margin-input]');
+        if (!marginInput) {
+          return;
+        }
+        const toolbar = marginInput.closest('[data-print-scale-toolbar]');
+        const frameId = toolbar.dataset.frameId;
+        const nextMargins = normalizePrintMargins({
+          top: toolbar.querySelector('[data-print-margin-input="top"]')?.value,
+          right: toolbar.querySelector('[data-print-margin-input="right"]')?.value,
+          bottom: toolbar.querySelector('[data-print-margin-input="bottom"]')?.value,
+          left: toolbar.querySelector('[data-print-margin-input="left"]')?.value,
+        }, getPreviewMargins(frameId));
+        syncPrintMarginToolbar(toolbar, nextMargins);
+        applyPrintMarginsToPreview(frameId, nextMargins, { forcePrintMargins: true });
+        return;
+      }
+      const toolbar = scaleInput.closest('[data-print-scale-toolbar]');
+      const frameId = toolbar.dataset.frameId;
+      const nextScale = clampPrintScalePercent(scaleInput.value, getPreviewScalePercent(frameId));
+      syncPrintScaleToolbar(toolbar, nextScale);
+      applyPrintScaleToPreview(frameId, nextScale, { forcePrintScale: true });
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+      initializePrintScaleToolbar(document);
+    });
+  </script>
+</body>
+</html>

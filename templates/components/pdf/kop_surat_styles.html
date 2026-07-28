@@ -1,0 +1,112 @@
+{% load static %}
+@font-face {
+    font-family: "Arial";
+    src: url("{% static 'fonts/Arial.ttf' %}") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Arial";
+    src: url("{% static 'fonts/Arial_Bold.ttf' %}") format("truetype");
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Arial";
+    src: url("{% static 'fonts/Arial_Italic.ttf' %}") format("truetype");
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: "Arial";
+    src: url("{% static 'fonts/Arial_Bold_Italic.ttf' %}") format("truetype");
+    font-weight: bold;
+    font-style: italic;
+}
+:root {
+    --kop-font-family: {{ kop_surat.font_family_css }};
+    --kop-region-font-size: {{ kop_surat.region_font_size_pt|default:14 }}pt;
+    --kop-office-font-size: {{ kop_surat.office_font_size_pt|default:18 }}pt;
+    --kop-address-font-size: {{ kop_surat.address_font_size_pt|default:10 }}pt;
+    --kop-contact-font-size: {{ kop_surat.contact_font_size_pt|default:10 }}pt;
+    --kop-logo-width: {{ kop_surat.logo_width_px|default:90 }}px;
+    --kop-logo-height: {{ kop_surat.logo_height_px|default:90 }}px;
+}
+
+.letterhead {
+    position: relative;
+    border-bottom: 1.2px solid #000;
+    font-family: var(--kop-font-family);
+    padding-bottom: 5px;
+}
+.letterhead::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 1.2px;
+    width: 100%;
+    border-bottom: 3px solid #000;
+}
+
+.letterhead-flex {
+    display: table;
+    width: 100%;
+}
+
+.letterhead-flex > div {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.logo-col {
+    width: 1%;
+    white-space: nowrap;
+    padding-right: 1px;
+}
+.logo-spacer {
+    width: calc(var(--kop-logo-width)/1.5);
+}
+
+.letterhead-logo {
+    display: block;
+    width: var(--kop-logo-width);
+    height: var(--kop-logo-height);
+    object-fit: contain;
+}
+
+.letterhead-centered {
+    text-align: center;
+}
+
+.letterhead-centered .letterhead-logo {
+    margin: 0 auto 1px;
+}
+
+.letterhead-text {
+    text-align: center;
+    line-height: 1.35;
+}
+
+.letterhead-region {
+    font-size: var(--kop-region-font-size);
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.letterhead-office {
+    font-size: var(--kop-office-font-size);
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+
+.letterhead-address {
+    font-size: var(--kop-address-font-size);
+}
+
+.letterhead-contact {
+    font-size: var(--kop-contact-font-size);
+}

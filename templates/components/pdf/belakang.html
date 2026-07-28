@@ -1,0 +1,549 @@
+{% load static %}
+{% load formatting %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Form SPD</title>
+
+  <style>
+    @page {
+      size: A4;
+    }
+    @font-face {
+      font-family: "Arial";
+      src: url("{% static 'fonts/Arial.ttf' %}") format("truetype");
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    @font-face {
+        font-family: "Arial";
+        src: url("{% static 'fonts/Arial_Bold.ttf' %}") format("truetype");
+        font-weight: bold;
+        font-style: normal;
+    }
+
+    @font-face {
+        font-family: "Arial";
+        src: url("{% static 'fonts/Arial_Italic.ttf' %}") format("truetype");
+        font-weight: normal;
+        font-style: italic;
+    }
+
+    @font-face {
+        font-family: "Arial";
+        src: url("{% static 'fonts/Arial_Bold_Italic.ttf' %}") format("truetype");
+        font-weight: bold;
+        font-style: italic;
+    }
+
+    :root {
+      --content-scale: {{ kop_surat.print_scale_decimal|default:"1" }};
+      --document-font-family: {{ kop_surat.font_family_css }};
+      --document-margin-top: 10mm;
+      --document-margin-right: 10mm;
+      --document-margin-bottom: 10mm;
+      --document-margin-left: 10mm;
+    }
+
+    html,
+    body{
+      margin:0;
+      padding:0;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+
+    body{
+      font-family: var(--document-font-family);
+      font-size:10.5pt;
+      background:#f2f2f2;
+      color:#111;
+      padding:12px;
+    }
+
+    .page{
+      width:210mm;
+      min-height:297mm;
+      margin:12px auto 24px;
+      background:#fff;
+      padding:
+        var(--document-margin-top)
+        var(--document-margin-right)
+        var(--document-margin-bottom)
+        var(--document-margin-left);
+      box-sizing:border-box;
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.14);
+    }
+
+    .document-body-scale {
+      width:100%;
+      box-sizing:border-box;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      table-layout:fixed;
+      font-size:inherit;
+    }
+
+    td{
+      border:1px solid #666;
+      vertical-align:top;
+      padding:6px 8px;
+    }
+
+    .col{
+      width:50%;
+    }
+
+    .section{
+      display:flex;
+      align-items:flex-start;
+    }
+
+    .roman{
+      width:28px;
+      font-weight:bold;
+      flex-shrink:0;
+    }
+
+    .content{
+      flex:1;
+      line-height:1.25;
+    }
+
+    .field{
+      display:flex;
+      margin-bottom:2px;
+    }
+    .field-note{
+      display:flex;
+      margin-bottom:2px;
+      text-align:justify;
+    }
+
+    .label{
+      width:140px;
+    }
+
+    .dots{
+      flex:1;
+    }
+
+    .ttd{
+      margin-top:18px;
+    }
+
+    .ttd-space{
+      height:48px;
+    }
+
+    .note{
+      text-align:justify;
+    }
+
+    .footer{
+        width: 280px;
+        max-width: 100%;
+        margin-left: auto;
+        margin-top: 26px;
+        line-height: 1.2;
+    }
+    .signature-space {
+        height: 60px;
+    }
+    .signature-name {
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    .signature-name-no-underline {
+        text-decoration: none;
+    }
+    .empty-state {
+        font-style: italic;
+    }
+
+    @media screen {
+      .document-body-scale {
+        /* width: calc(100% / var(--content-scale)); */
+        transform-origin: top left;
+        zoom: var(--content-scale);
+      }
+    }
+
+    @supports not (zoom: 1) {
+      @media screen {
+        .document-body-scale {
+          transform: scale(var(--content-scale));
+        }
+      }
+    }
+
+    @media print {
+      body {
+        background:#fff;
+        padding:0;
+      }
+
+      .page {
+        width:auto;
+        min-height:auto;
+        margin:0;
+        box-shadow:none;
+        padding:10mm;
+      }
+
+      .document-body-scale {
+        width:100%;
+        zoom:1;
+        transform:none;
+        transform-origin: top left;
+      }
+
+      body[data-force-print-scale="true"] .document-body-scale {
+        /* width: calc(100% / var(--content-scale)); */
+        zoom: var(--content-scale);
+      }
+
+      body[data-force-print-margins="true"] .page {
+        padding:
+          var(--document-margin-top)
+          var(--document-margin-right)
+          var(--document-margin-bottom)
+          var(--document-margin-left);
+      }
+    }
+
+    @supports not (zoom: 1) {
+      @media print {
+        body[data-force-print-scale="true"] .document-body-scale {
+          /* width: calc(100% / var(--content-scale)); */
+          transform: scale(var(--content-scale));
+        }
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="page">
+  <div class="document-body-scale">
+  <table>
+
+    <!-- I -->
+    <tr>
+      <td class="col" style="height:120px;"></td>
+
+      <td class="col">
+        <div class="section">
+          <div class="roman">I.</div>
+
+          <div class="content">
+
+            <div class="field">
+              <div class="label">Berangkat dari</div>
+              <div>: ................................</div>
+            </div>
+
+            <div>(Tempat Kedudukan)</div>
+
+            <div class="field">
+              <div class="label">Ke</div>
+              <div>: ................................</div>
+            </div>
+
+            <div class="field">
+              <div class="label">Pada tanggal</div>
+              <div>: ................................</div>
+            </div>
+
+            <div>{{ signature_title|default:"-" }}</div>
+
+            <div class="ttd-space"></div>
+
+            <div class="signature-name-no-underline">{{ penandatangan_dokumen.nama|default:"-" }}</div>
+                {% if show_signature_identity_details and penandatangan_dokumen.nip %}
+                    Nip. {{ penandatangan_dokumen.nip }}
+                {% endif %}
+
+          </div>
+        </div>
+      </td>
+    </tr>
+
+    <!-- II -->
+    <tr>
+      <td class="col">
+        <div class="section">
+          <div class="roman">II.</div>
+
+          <div class="content">
+
+            <div class="field">
+              <div class="label">Tiba di</div>
+              <div>: ................................</div>
+            </div>
+
+            <div class="field">
+              <div class="label">Pada tanggal</div>
+              <div>: ................................</div>
+            </div>
+            <br>
+            <div>Kepala</div>
+
+            <div class="ttd-space"></div>
+
+            <div>(........................................)</div>
+            <div>Nip.</div>
+
+          </div>
+        </div>
+      </td>
+
+      <td class="col">
+        <div class="content">
+
+          <div class="field">
+            <div class="label">Berangkat dari</div>
+            <div>: ................................</div>
+          </div>
+
+          <div class="field">
+            <div class="label">Ke</div>
+            <div>: ................................</div>
+          </div>
+
+          <div class="field">
+            <div class="label">Pada tanggal</div>
+            <div>: ................................</div>
+          </div>
+
+          <div>Kepala</div>
+
+          <div class="ttd-space"></div>
+
+          <div>(........................................)</div>
+          <div>Nip.</div>
+
+        </div>
+      </td>
+    </tr>
+
+    <!-- III -->
+    <tr>
+      <td class="col">
+        <div class="section">
+          <div class="roman">III.</div>
+
+          <div class="content">
+
+            <div class="field">
+              <div class="label">Tiba di</div>
+              <div>: ................................</div>
+            </div>
+
+            <div class="field">
+              <div class="label">Pada tanggal</div>
+              <div>: ................................</div>
+            </div>
+            <br>
+            <div>Kepala</div>
+
+            <div class="ttd-space"></div>
+
+            <div>(........................................)</div>
+            <div>Nip.</div>
+
+          </div>
+        </div>
+      </td>
+
+      <td class="col">
+        <div class="content">
+
+          <div class="field">
+            <div class="label">Berangkat dari</div>
+            <div>: ................................</div>
+          </div>
+
+          <div class="field">
+            <div class="label">Ke</div>
+            <div>: ................................</div>
+          </div>
+
+          <div class="field">
+            <div class="label">Pada tanggal</div>
+            <div>: ................................</div>
+          </div>
+
+          <div>Kepala</div>
+
+          <div class="ttd-space"></div>
+
+          <div>(........................................)</div>
+          <div>Nip.</div>
+
+        </div>
+      </td>
+    </tr>
+
+    <!-- IV -->
+    <tr>
+      <td class="col">
+        <div class="section">
+          <div class="roman">IV.</div>
+
+          <div class="content">
+
+            <div class="field">
+              <div class="label">Tiba di</div>
+              <div>: ................................</div>
+            </div>
+
+            <div class="field">
+              <div class="label">Pada tanggal</div>
+              <div>: ................................</div>
+            </div>
+            <br>
+            <div>Kepala</div>
+
+            <div class="ttd-space"></div>
+
+            <div>(........................................)</div>
+            <div>Nip.</div>
+
+          </div>
+        </div>
+      </td>
+
+      <td class="col">
+        <div class="content">
+
+          <div class="field">
+            <div class="label">Berangkat dari</div>
+            <div>: ................................</div>
+          </div>
+
+          <div class="field">
+            <div class="label">Ke</div>
+            <div>: ................................</div>
+          </div>
+
+          <div class="field">
+            <div class="label">Pada tanggal</div>
+            <div>: ................................</div>
+          </div>
+
+          <div>Kepala</div>
+
+          <div class="ttd-space"></div>
+
+          <div>(........................................)</div>
+          <div>Nip.</div>
+
+        </div>
+      </td>
+    </tr>
+
+    <!-- V -->
+    <tr>
+      <td class="col">
+        <div class="section">
+          <div class="roman">V.</div>
+
+          <div class="content">
+
+            <div class="field">
+              <div class="label">Tiba di</div>
+              <div>: ................................</div>
+            </div>
+
+            <div class="field">
+              <div class="label">Pada tanggal</div>
+              <div>: ................................</div>
+            </div>
+
+            <div>{{ signature_title|default:"-" }}</div>
+
+            <div class="ttd-space"></div>
+
+            <div class="signature-name-no-underline">{{ penandatangan_dokumen.nama|default:"-" }}</div>
+                {% if show_signature_identity_details and penandatangan_dokumen.nip %}
+                    Nip. {{ penandatangan_dokumen.nip }}
+                {% endif %}
+
+          </div>
+        </div>
+      </td>
+
+      <td class="col note">
+        Telah diperiksa, dengan keterangan bahwa perjalanan tersebut diatas
+        benar dilakukan atas perintahnya dan semata-mata untuk kepentingan
+        jabatan dalam waktu yang sesingkat-singkatnya.
+      </td>
+    </tr>
+
+    <!-- VI -->
+    <tr>
+      <td colspan="2" class="col">
+        <div class="section">
+          <div class="roman">VI.</div>
+
+          <div class="content">
+
+            <div class="field">
+              <div class="label">Catatan Lain-lain</div>
+            </div>
+          </div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2" class="col">
+        <div class="section">
+          <div class="roman">VII.</div>
+
+          <div class="content">
+
+            <div class="field">
+              <div class="label"><b>PERHATIAN :</b></div><br>
+            </div>
+            <div class="field-note">
+                PPK yang menerbitkan SPD, pegawai yang melakukan perjalanan dinas,
+                para pejabat yang mengesahkan tanggal berangkat/tiba, serta bendahara
+                pengeluaran bertanggung jawab berdasarkan peraturan-peraturan
+                keuangan negara apabila negara menderita rugi akibat kesalahan,
+                kelalaian, dan kealpaannya.
+            </div>
+          </div>
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- Tanda tangan kanan -->
+    <div class="footer">
+        {{ signature_title|default:"-" }},<br>
+
+        <div class="signature-space"></div>
+
+        <div class="signature-name-no-underline">{{ penandatangan_dokumen.nama|default:"-" }}</div>
+        {% if show_signature_identity_details and penandatangan_dokumen.nip %}
+            Nip. {{ penandatangan_dokumen.nip }}
+        {% endif %}
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,27 @@
+@page {
+    @bottom-left {
+        content: "{{ active_opd_name|default:"-"|escapejs }}";
+        font-size: 8pt;
+        color: #555;
+    }
+
+    @bottom-right {
+        content: "Halaman " counter(page) " dari " counter(pages);
+        font-size: 8pt;
+        color: #555;
+    }
+}
+
+.print-page-footer {
+    display: none;
+}
+
+@media print {
+    .document-body-frame {
+        padding-bottom: 8mm;
+    }
+
+    .sheet {
+        padding-bottom: 8mm;
+    }
+}

@@ -1,5 +1,5 @@
 from config.tables import BaseTable, action_column
-from .models import Pegawai, Bidang, Eselon, Pangkat
+from .models import Pegawai, Bidang, Eselon, Pangkat, JenisJabatan, StatusASN, Tugas
 
 class PangkatTable(BaseTable):
     aksi = action_column("pangkat_update", "pangkat_delete")
@@ -25,11 +25,35 @@ class EselonTable(BaseTable):
         fields = ("no", "eselon", "urutan", "aksi")
         order_by = ("urutan",)
 
+class JenisJabatanTable(BaseTable):
+    aksi = action_column("jenis_jabatan_update", "jenis_jabatan_delete")
+
+    class Meta(BaseTable.Meta):
+        model = JenisJabatan
+        fields = ("no", "nama", "keterangan", "fungsi", "aksi")
+        order_by = ("id","nama")
+
+class StatusASNTable(BaseTable):
+    aksi = action_column("status_asn_update", "status_asn_delete")
+
+    class Meta(BaseTable.Meta):
+        model = StatusASN
+        fields = ("no", "nama", "aksi")
+        order_by = ("id","nama")
+
+class TugasTable(BaseTable):
+    aksi = action_column("tugas_update", "tugas_delete")
+
+    class Meta(BaseTable.Meta):
+        model = Tugas
+        fields = ("no", "nama", "keterangan", "aksi")
+        order_by = ("id","nama")
+
 class PegawaiTable(BaseTable):
     aksi = action_column("pegawai_update", "pegawai_delete")
 
     class Meta(BaseTable.Meta):
         model = Pegawai
-        fields = ("no", "nip", "nama", "sub_opd", "aksi")
+        fields = ("no", "nip", "nama", "sub_opd","pangkat","eselon","bidang", "aksi")
         order_by = ("nip",)
 

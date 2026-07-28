@@ -1,0 +1,41 @@
+{% load static %}
+
+<div class="letterhead">
+    {% if kop_is_regional_head %}
+        <div class="letterhead-centered">
+            <img
+                src="{% if pemda and pemda.logo %}{{ pemda.logo.url }}{% else %}{% static 'assets/images/logo.png' %}{% endif %}"
+                alt="Logo Pemda"
+                class="letterhead-logo">
+            <div class="letterhead-text">
+                <div class="letterhead-office">{{ kop_office_name|default:"Bupati Asahan"|upper }}</div>
+                {% if pemda and pemda.alamat %}
+                    <div class="letterhead-address">{{ pemda.alamat|upper }}</div>
+                {% endif %}
+                {% if kop_contact_line %}
+                    <div class="letterhead-contact">{{ kop_contact_line }}</div>
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <div class="letterhead-flex">
+            <div class="logo-col">
+                <img
+                    src="{% if pemda and pemda.logo %}{{ pemda.logo.url }}{% else %}{% static 'assets/images/logo.png' %}{% endif %}"
+                    alt="Logo Pemda"
+                    class="letterhead-logo">
+            </div>
+            <div class="letterhead-text">
+                <div class="letterhead-region">{{ pemda.nama_pemda|default:"Pemerintah Daerah"|upper }}</div>
+                <div class="letterhead-office">{{ kop_office_name|default:"Instansi"|upper }}</div>
+                {% if pemda and pemda.alamat %}
+                    <div class="letterhead-address">{{ pemda.alamat|upper }}</div>
+                {% endif %}
+                {% if kop_contact_line %}
+                    <div class="letterhead-contact">{{ kop_contact_line }}</div>
+                {% endif %}
+            </div>
+            <div class="logo-spacer"></div>
+        </div>
+    {% endif %}
+</div>

@@ -1,11 +1,11 @@
-from config.crud.base import BaseCRUDView
+from config.crud.base import FullAccessCRUDView
 
-from .forms import OPDForm, SubOPDForm
-from .models import OPD, SubOPD
-from .tables import OPDTable, SubOPDTable
+from .forms import OPDForm, SubOPDForm, PenandatanganForm, PemdaForm, KopSuratForm
+from .models import OPD, SubOPD, Penandatangan, Pemda, KopSurat
+from .tables import OPDTable, SubOPDTable, PenandatanganTable, PemdaTable, KopSuratTable
 
 
-class OPDListView(BaseCRUDView):
+class OPDListView(FullAccessCRUDView):
     model = OPD
     form_class = OPDForm
     table_class = OPDTable
@@ -14,19 +14,7 @@ class OPDListView(BaseCRUDView):
     url_action = "/opd/"
     url_action_pk = "/opd/"
 
-    def get_permission(self):
-        return type("Perm", (), {"can_view": True, "can_add": True, "can_edit": True, "can_delete": True})()
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["form"] = self.get_form(self.request)
-        context["search_query"] = self.request.GET.get("search", "")
-        context["export_url"] = self.get_export_url()
-        context["import_url"] = self.get_import_url()
-        return context
-
-
-class SubOPDListView(BaseCRUDView):
+class SubOPDListView(FullAccessCRUDView):
     model = SubOPD
     form_class = SubOPDForm
     table_class = SubOPDTable
@@ -35,13 +23,29 @@ class SubOPDListView(BaseCRUDView):
     url_action = "/sub-opd/"
     url_action_pk = "/sub-opd/"
 
-    def get_permission(self):
-        return type("Perm", (), {"can_view": True, "can_add": True, "can_edit": True, "can_delete": True})()
+class PenandatanganListView(FullAccessCRUDView):
+    model = Penandatangan
+    form_class = PenandatanganForm
+    table_class = PenandatanganTable
+    title = "Penandatangan"
+    url_list = "/penandatangan/"
+    url_action = "/penandatangan/"
+    url_action_pk = "/penandatangan/"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["form"] = self.get_form(self.request)
-        context["search_query"] = self.request.GET.get("search", "")
-        context["export_url"] = self.get_export_url()
-        context["import_url"] = self.get_import_url()
-        return context
+class PemdaListView(FullAccessCRUDView):
+    model = Pemda
+    form_class = PemdaForm
+    table_class = PemdaTable
+    title = "Pemda"
+    url_list = "/pemda/"
+    url_action = "/pemda/"
+    url_action_pk = "/pemda/"
+
+class KopSuratListView(FullAccessCRUDView):
+    model = KopSurat
+    form_class = KopSuratForm
+    table_class = KopSuratTable
+    title = "Kop Surat"
+    url_list = "/kop-surat/"
+    url_action = "/kop-surat/"
+    url_action_pk = "/kop-surat/"

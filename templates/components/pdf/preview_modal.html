@@ -1,0 +1,220 @@
+<div class="modal-header border-0 pb-0">
+    <div>
+        <h5 class="modal-title">{{ title }}</h5>
+        <div class="text-muted small">
+            {{ preview_description }}
+        </div>
+    </div>
+    <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="modal"
+        aria-label="Tutup">
+    </button>
+</div>
+
+<div class="modal-body pt-3">
+    <div
+        class="print-scale-toolbar alert alert-warning d-none"
+        data-print-scale-toolbar
+        data-frame-id="{{ frame_id }}"
+        role="status">
+        <div class="fw-semibold mb-1">Skala print Android</div>
+        <div class="small text-muted mb-3">
+            Jika dialog cetak Android tidak menampilkan pengaturan skala atau margin, atur dari modal ini sebelum menekan tombol cetak.
+        </div>
+
+        <div class="row g-2 align-items-center">
+            <div class="col-12 col-lg-auto">
+                <label class="form-label mb-0" for="{{ frame_id }}-scale-range">
+                    Skala dokumen
+                </label>
+            </div>
+
+            <div class="col-12 col-lg">
+                <input
+                    id="{{ frame_id }}-scale-range"
+                    class="form-range mb-0"
+                    type="range"
+                    min="75"
+                    max="120"
+                    step="1"
+                    value="100"
+                    data-print-scale-range>
+            </div>
+
+            <div class="col-8 col-sm-4 col-lg-2">
+                <div class="input-group input-group-sm">
+                    <input
+                        class="form-control"
+                        type="number"
+                        min="75"
+                        max="120"
+                        step="1"
+                        value="100"
+                        inputmode="numeric"
+                        data-print-scale-input>
+                    <span class="input-group-text">%</span>
+                </div>
+            </div>
+
+            <div class="col-4 col-sm-3 col-lg-auto">
+                <button
+                    type="button"
+                    class="btn btn-sm btn-outline-secondary w-100"
+                    data-print-scale-reset>
+                    Reset
+                </button>
+            </div>
+        </div>
+
+        <div class="small text-muted mt-2">
+            Default dokumen:
+            <span class="fw-semibold" data-print-scale-default-label>100%</span>
+        </div>
+
+        <div class="small mt-1">
+            Skala aktif:
+            <span class="fw-semibold text-dark" data-print-scale-current-label>100%</span>
+            <span class="text-muted" data-print-scale-state-label>(default)</span>
+        </div>
+
+        <div class="fw-semibold mt-3 mb-1">Margin print Android</div>
+        <div class="small text-muted mb-2">
+            Satuan milimeter. Berlaku khusus untuk hasil cetak Android dari modal ini.
+        </div>
+
+        <div class="row g-2">
+            <div class="col-6 col-lg-3">
+                <label class="form-label mb-1" for="{{ frame_id }}-margin-top">
+                    Atas
+                </label>
+                <div class="input-group input-group-sm">
+                    <input
+                        id="{{ frame_id }}-margin-top"
+                        class="form-control"
+                        type="number"
+                        min="0"
+                        max="50"
+                        step="0.5"
+                        value="18"
+                        inputmode="decimal"
+                        data-print-margin-input="top">
+                    <span class="input-group-text">mm</span>
+                </div>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <label class="form-label mb-1" for="{{ frame_id }}-margin-right">
+                    Kanan
+                </label>
+                <div class="input-group input-group-sm">
+                    <input
+                        id="{{ frame_id }}-margin-right"
+                        class="form-control"
+                        type="number"
+                        min="0"
+                        max="50"
+                        step="0.5"
+                        value="18"
+                        inputmode="decimal"
+                        data-print-margin-input="right">
+                    <span class="input-group-text">mm</span>
+                </div>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <label class="form-label mb-1" for="{{ frame_id }}-margin-bottom">
+                    Bawah
+                </label>
+                <div class="input-group input-group-sm">
+                    <input
+                        id="{{ frame_id }}-margin-bottom"
+                        class="form-control"
+                        type="number"
+                        min="0"
+                        max="50"
+                        step="0.5"
+                        value="20"
+                        inputmode="decimal"
+                        data-print-margin-input="bottom">
+                    <span class="input-group-text">mm</span>
+                </div>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <label class="form-label mb-1" for="{{ frame_id }}-margin-left">
+                    Kiri
+                </label>
+                <div class="input-group input-group-sm">
+                    <input
+                        id="{{ frame_id }}-margin-left"
+                        class="form-control"
+                        type="number"
+                        min="0"
+                        max="50"
+                        step="0.5"
+                        value="18"
+                        inputmode="decimal"
+                        data-print-margin-input="left">
+                    <span class="input-group-text">mm</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-2">
+            <button
+                type="button"
+                class="btn btn-sm btn-outline-secondary"
+                data-print-margin-reset>
+                Reset margin
+            </button>
+        </div>
+
+        <div class="small text-muted mt-2">
+            Default margin:
+            <span class="fw-semibold" data-print-margin-default-label>Atas 18 | Kanan 18 | Bawah 20 | Kiri 18 mm</span>
+        </div>
+
+        <div class="small mt-1">
+            Margin aktif:
+            <span class="fw-semibold text-dark" data-print-margin-current-label>Atas 18 | Kanan 18 | Bawah 20 | Kiri 18 mm</span>
+            <span class="text-muted" data-print-margin-state-label>(default)</span>
+        </div>
+    </div>
+
+    <div class="print-preview-shell">
+        <iframe
+            id="{{ frame_id }}"
+            class="print-preview-frame"
+            src="{{ iframe_src }}"
+            title="{{ title }}"
+            loading="lazy">
+        </iframe>
+    </div>
+</div>
+
+<div class="modal-footer border-0 pt-0">
+    <button
+        type="button"
+        class="btn btn-primary"
+        data-print-preview-action="print"
+        data-frame-id="{{ frame_id }}">
+        {{ print_button_label }}
+    </button>
+
+    <a
+        href="{{ open_url }}"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn btn-outline-secondary">
+        Buka Tab Baru
+    </a>
+
+    <button
+        type="button"
+        class="btn btn-outline-dark"
+        data-bs-dismiss="modal">
+        Tutup
+    </button>
+</div>

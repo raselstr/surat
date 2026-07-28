@@ -1,0 +1,522 @@
+{% load static %}
+{% load formatting %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Surat Tugas</title>
+<style>
+@page {
+    size: A4;
+}
+@font-face {
+    font-family: "Arial";
+    src: url("{% static 'fonts/Arial.ttf' %}") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Arial";
+    src: url("{% static 'fonts/Arial_Bold.ttf' %}") format("truetype");
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Arial";
+    src: url("{% static 'fonts/Arial_Italic.ttf' %}") format("truetype");
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: "Arial";
+    src: url("{% static 'fonts/Arial_Bold_Italic.ttf' %}") format("truetype");
+    font-weight: bold;
+    font-style: italic;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    color: #111;
+    background: #eef2f7;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+body,
+table,
+tr,
+td,
+th,
+div,
+span,
+p,
+ol,
+ul,
+li {
+    font-family: var(--document-font-family);
+    font-size: 11pt;
+}
+
+:root {
+    --content-scale: {{ kop_surat.print_scale_decimal|default:"1" }};
+    --document-font-family: {{ kop_surat.font_family_css }};
+    --letterhead-top-padding: 0mm;
+    --letterhead-side-padding: 0mm;
+    --document-margin-top: {{ kop_surat.margin_top_mm|default:1 }}mm;
+    --document-margin-right: {{ kop_surat.margin_right_mm|default:1 }}mm;
+    --document-margin-bottom: {{ kop_surat.margin_bottom_mm|default:1 }}mm;
+    --document-margin-left: {{ kop_surat.margin_left_mm|default:1 }}mm;
+}
+
+{% include "components/pdf/kop_surat_styles.html" %}
+{% include "components/pdf/page_footer_styles.html" %}
+
+.page {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 12px auto 24px;
+    box-sizing: border-box;
+    background: #fff;
+    box-shadow: 0 20px 45px rgba(15, 23, 42, 0.14);
+}
+
+.sheet {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.letterhead-shell {
+    padding: var(--letterhead-top-padding) var(--letterhead-side-padding) 0;
+    box-sizing: border-box;
+}
+
+.document-body-frame {
+    margin:
+        var(--document-margin-top)
+        var(--document-margin-right)
+        var(--document-margin-bottom)
+        var(--document-margin-left);
+    box-sizing: border-box;
+}
+
+.document-body-scale {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@media screen {
+    .document-body-scale {
+        /* width: calc(100% / var(--content-scale)); */
+        transform-origin: top left;
+        zoom: var(--content-scale);
+    }
+}
+
+.pdf-header {
+    font-size: {{ kop_surat.header_font_size_pt|default:"10" }}pt;
+    text-align: {{ kop_surat.header_alignment|default:"center" }};
+    margin-bottom: 8px;
+}
+
+.pdf-footer {
+    font-size: {{ kop_surat.footer_font_size_pt|default:"10" }}pt;
+    text-align: {{ kop_surat.footer_alignment|default:"center" }};
+    margin-top: 12px;
+}
+
+.document-title {
+    text-align: center;
+    margin: 30px 0;
+}
+
+.document-title-body {
+    display: inline-block;
+    text-align: center;
+    line-height: 1;
+}
+
+.document-title .title-text {
+    font-size: 14pt;
+    font-weight: bold;
+    text-decoration: underline;
+    letter-spacing: 10.4px;
+}
+
+.document-number-line {
+    display: grid;
+    grid-template-columns: auto 12px minmax(0, 1fr);
+    column-gap: 4px;
+    margin-top: 1px;
+    text-align: left;
+}
+
+.document-number-value {
+    display: inline-block;
+    min-width: 0;
+    max-width: 100%;
+}
+
+table {
+    width: 100%;
+}
+
+.detail-table,
+.recipient-table,
+.person-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.detail-table td,
+.recipient-table td,
+.person-table td,
+.document-number-value,
+.signature-title-text,
+.signature-identity {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    box-sizing: border-box;
+}
+
+.detail-table {
+    line-height: 1.4;
+}
+
+.detail-table td {
+    vertical-align: top;
+    padding: 10px 0 0 0;
+    text-align: justify;
+}
+
+.label-cell {
+    width: 92px;
+}
+
+.colon-cell {
+    width: 14px;
+    text-align: center;
+}
+
+.section-heading {
+    text-align: center;
+    font-weight: bold;
+    margin: 22px 0 18px;
+    letter-spacing: 0.4px;
+}
+
+.recipient-table td,
+.person-table td {
+    vertical-align: top;
+    padding: 0 0 0px;
+}
+
+.recipient-no {
+    width: 24px;
+    padding-right: 8px;
+}
+
+.person-label {
+    width: 110px;
+}
+
+.person-colon {
+    width: 14px;
+    text-align: center;
+}
+.person-spacing {
+    height: 8px;
+}
+
+.instruction-list {
+    margin: 0;
+    padding-left: 18px;
+}
+
+.instruction-list li {
+    margin-bottom: 8px;
+    text-align: justify;
+}
+
+.empty-state {
+    font-style: italic;
+}
+
+.signature {
+    width: 280px;
+    max-width: 100%;
+    margin-left: auto;
+    margin-top: 34px;
+    line-height: 1.2;
+}
+
+.signature-space {
+    height: 65px;
+}
+
+.signature-name {
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.signature-name-no-underline {
+    text-decoration: none;
+}
+
+.signature-title {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    column-gap: 5px;
+    align-items: start;
+}
+
+.signature-title-no-prefix {
+    grid-template-columns: 1fr;
+}
+
+.signature-title-prefix {
+    min-width: 0;
+}
+
+.signature-title-text {
+    min-width: 0;
+}
+
+.signature-space {
+    grid-column: 2;
+}
+
+.signature-identity {
+    grid-column: 2;
+}
+
+.signature-title-no-prefix .signature-title-text,
+.signature-title-no-prefix .signature-space,
+.signature-title-no-prefix .signature-identity {
+    grid-column: 1;
+}
+
+@supports not (zoom: 1) {
+    @media screen {
+        .document-body-scale {
+            /* width: calc(100% / var(--content-scale)); */
+            transform: scale(var(--content-scale));
+        }
+    }
+}
+
+@media print {
+    body {
+        background: #fff;
+    }
+
+    .page {
+        width: auto;
+        min-height: auto;
+        margin: 0;
+        box-shadow: none;
+    }
+
+    .letterhead-shell {
+        padding: 0;
+    }
+
+    .document-body-frame {
+        margin: 0;
+    }
+
+    .document-body-scale {
+        width: 100%;
+        zoom: 1;
+        transform: none;
+        transform-origin: top left;
+    }
+
+    body[data-force-print-scale="true"] .document-body-scale {
+        /* width: calc(100% / var(--content-scale)); */
+        zoom: var(--content-scale);
+    }
+
+    body[data-force-print-margins="true"] .letterhead-shell {
+        padding: var(--letterhead-top-padding) var(--letterhead-side-padding) 0;
+    }
+
+    body[data-force-print-margins="true"] .document-body-frame {
+        margin:
+            var(--document-margin-top)
+            var(--document-margin-right)
+            var(--document-margin-bottom)
+            var(--document-margin-left);
+    }
+}
+
+@supports not (zoom: 1) {
+    @media print {
+        body[data-force-print-scale="true"] .document-body-scale {
+            /* width: calc(100% / var(--content-scale)); */
+            transform: scale(var(--content-scale));
+        }
+    }
+}
+</style>
+</head>
+<body>
+<div class="page">
+    <div class="sheet">
+        <div class="letterhead-shell">
+            {% include "components/pdf/kop_surat.html" %}
+        </div>
+
+        <div class="document-body-frame">
+            <div class="document-body-scale">
+                {% if kop_surat.header_text %}
+                <div class="pdf-header">{{ kop_surat.header_text }}</div>
+                {% endif %}
+
+                <div class="document-title">
+                    <div class="document-title-body">
+                        <div class="title-text">SURAT TUGAS</div>
+                        <div class="document-number-line">
+                            <span>Nomor</span>
+                            <span>:</span>
+                            <span class="document-number-value">{% if nomor_spt %}{{ nomor_spt }}{% else %}&nbsp;{% endif %}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {% if spt.dasar %}
+                <table class="detail-table">
+                    <tr>
+                        <td class="label-cell">Dasar</td>
+                        <td class="colon-cell">:</td>
+                        <td>{{ spt.dasar|linebreaksbr }}</td>
+                    </tr>
+                </table>
+                {% endif %}
+
+                <div class="section-heading">MEMERINTAHKAN:</div>
+
+                <table class="detail-table">
+                    <tr>
+                        <td class="label-cell">Kepada</td>
+                        <td class="colon-cell">:</td>
+                        <td>
+                            {% if pelaksana_list %}
+                                <table class="recipient-table">
+                                    {% for pelaksana in pelaksana_list %}
+                                        <tr>
+                                            {% if show_pelaksana_numbering %}
+                                                <td class="recipient-no">{{ forloop.counter }}.</td>
+                                            {% endif %}
+                                            <td>
+                                                <table class="person-table">
+                                                    <tr>
+                                                        <td class="person-label">Nama</td>
+                                                        <td class="person-colon">:</td>
+                                                        <td>{{ pelaksana.nama.nama|default:"-" }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="person-label">Pangkat/Gol</td>
+                                                        <td class="person-colon">:</td>
+                                                        <td>{{ pelaksana.nama.pangkat|default:"-" }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="person-label">Nip</td>
+                                                        <td class="person-colon">:</td>
+                                                        <td>{{ pelaksana.nama.nip|default:"-"}}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="person-label">Jabatan</td>
+                                                        <td class="person-colon">:</td>
+                                                        <td>{{ pelaksana.nama.jabatan|default:"-" }}</td>
+                                                    </tr>
+                                                </table>
+                                                <div class="person-spacing"></div>
+                                            </td>
+                                        </tr>
+                                        {% if not forloop.last %}
+                                            <tr><td colspan="2" style="height:3px;"></td></tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                </table>
+                            {% else %}
+                                <span class="empty-state">Belum ada pelaksana yang sesuai untuk surat tugas ini.</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label-cell">Untuk</td>
+                        <td class="colon-cell">:</td>
+                        <td>
+                            <ol class="instruction-list">
+                                <li>
+                                    Melaksanakan Perjalanan Dinas selama {{ spt.lama_perjalanan }} ({{ spt.lama_perjalanan|number_to_words }}) hari dalam rangka
+                                    {{ spt.berita|default:"-" }} ke {{ tempat_tujuan_text|default:"-" }}
+                                    di {{ kota_tujuan_text|default:"-" }} terhitung tanggal
+                                    {{ tanggal_perjalanan_spt }}.
+                                </li>
+                                <li>
+                                    Setelah selesai melaksanakan tugas, agar menyampaikan laporan kepada
+                                    {% for title_line in spt_signature_title_lines %}
+                                        {{ title_line|default:"-" }}{% if not forloop.last %}{% endif %}
+                                    {% empty %}
+                                        {{ signature_title|default:"Pejabat Pemberi Tugas" }}
+                                    {% endfor %}.
+                                </li>
+                            </ol>
+                        </td>
+                    </tr>
+                </table>
+
+                <div class="signature">
+                    {{ signature_location }}, {{ tanggal_dokumen|date:"d F Y" }}<br>
+                    <div class="signature-title{% if not spt_signature_title_prefix %} signature-title-no-prefix{% endif %}">
+                        {% if spt_signature_title_prefix %}
+                        <span class="signature-title-prefix">{{ spt_signature_title_prefix }}</span>
+                        {% endif %}
+                        <span class="signature-title-text">
+                            {% for title_line in spt_signature_title_lines %}
+                                {{ title_line|default:"-" }}{% if not forloop.last %}<br>{% endif %}
+                            {% empty %}
+                                {{ signature_title|default:"-" }}
+                            {% endfor %}
+                        </span>
+                        <div class="signature-space"></div>
+                        <div class="signature-identity">
+                            <div class="signature-name-no-underline">{{ pemberi_tugas.nama|default:"-" }}</div>
+                            {% if show_signature_identity_details %}
+                                {% if pemberi_tugas.pangkat %}
+                                <div>{{ pemberi_tugas.penandatangan.pangkat }}</div>
+                                {% endif %}
+                                {% if pemberi_tugas.nip %}
+                                <div>Nip. {{ pemberi_tugas.nip}}</div>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include "components/pdf/page_footer.html" %}
+
+{% if auto_print %}
+<script>
+window.addEventListener("load", function () {
+    window.print();
+});
+</script>
+{% endif %}
+</body>
+</html>

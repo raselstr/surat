@@ -1,0 +1,565 @@
+{% load static %}
+{% load formatting %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Surat Perjalanan Dinas</title>
+<style>
+@page {
+    size: A4;
+}
+
+@font-face {
+    font-family: "Arial";
+    src: url("{% static 'fonts/Arial.ttf' %}") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Arial";
+    src: url("{% static 'fonts/Arial_Bold.ttf' %}") format("truetype");
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Arial";
+    src: url("{% static 'fonts/Arial_Italic.ttf' %}") format("truetype");
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: "Arial";
+    src: url("{% static 'fonts/Arial_Bold_Italic.ttf' %}") format("truetype");
+    font-weight: bold;
+    font-style: italic;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    color: #111;
+    background: #eef2f7;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+body,
+table,
+tr,
+td,
+th,
+div,
+span,
+p,
+ol,
+ul,
+li {
+    font-family: var(--document-font-family);
+    font-size: 11pt;
+    
+}
+
+:root {
+    --content-scale: {{ kop_surat.print_scale_decimal|default:"1" }};
+    --document-font-family: {{ kop_surat.font_family_css }};
+    --letterhead-top-padding: 1mm;
+    --letterhead-side-padding: 1mm;
+    --document-margin-top: {{ kop_surat.margin_top_mm|default:1 }}mm;
+    --document-margin-right: {{ kop_surat.margin_right_mm|default:1 }}mm;
+    --document-margin-bottom: {{ kop_surat.margin_bottom_mm|default:1 }}mm;
+    --document-margin-left: {{ kop_surat.margin_left_mm|default:1 }}mm;
+}
+
+{% include "components/pdf/kop_surat_styles.html" %}
+{% include "components/pdf/page_footer_styles.html" %}
+
+.page {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 12px auto 24px;
+    background: #fff;
+    box-shadow: 0 20px 45px rgba(15, 23, 42, 0.14);
+    box-sizing: border-box;
+}
+
+.sheet {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.letterhead-shell {
+    padding: var(--letterhead-top-padding) var(--letterhead-side-padding) 0;
+    box-sizing: border-box;
+}
+
+.document-body-frame {
+    margin:
+        var(--document-margin-top)
+        var(--document-margin-right)
+        var(--document-margin-bottom)
+        var(--document-margin-left);
+    box-sizing: border-box;
+}
+
+.document-body-scale {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@media screen {
+    .document-body-scale {
+        /* width: calc(100% / var(--content-scale)); */
+        transform-origin: top left;
+        zoom: var(--content-scale);
+    }
+}
+
+.pdf-header {
+    font-size: {{ kop_surat.header_font_size_pt|default:"10" }}pt;
+    text-align: {{ kop_surat.header_alignment|default:"center" }};
+    margin-bottom: 8px;
+}
+
+.pdf-footer {
+    font-size: {{ kop_surat.footer_font_size_pt|default:"10" }}pt;
+    text-align: {{ kop_surat.footer_alignment|default:"center" }};
+    margin-top: 12px;
+}
+
+.meta-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0 14px;
+}
+
+.meta-table td {
+    padding: 2px 0;
+    vertical-align: top;
+}
+
+.meta-label {
+    width: 116px;
+}
+
+.meta-colon {
+    width: 14px;
+    text-align: center;
+}
+
+.document-title {
+    text-align: center;
+    margin-bottom: 14px;
+}
+
+.document-title-body {
+    display: inline-block;
+    text-align: center;
+}
+
+.document-title .title-text {
+    font-size: 14pt;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.document-number-line {
+    display: grid;
+    grid-template-columns: auto 12px minmax(0, 1fr);
+    column-gap: 4px;
+    margin-top: 8px;
+    text-align: left;
+}
+
+.document-number-value {
+    display: inline-block;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.main-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.main-table td,
+.sub-table td,
+.meta-table td,
+.document-number-value,
+.footer {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    box-sizing: border-box;
+}
+
+.main-table td {
+    border: 1px solid #000;
+    padding: 0.5px 3px;
+    vertical-align: top;
+    line-height: 1.45;
+}
+
+.number-col {
+    width: 34px;
+    text-align: center;
+}
+
+.label-col {
+    width: 160px;
+}
+
+.detail-col {
+    width: 150px;
+}
+
+.birthdate-col {
+    width: 128px;
+}
+
+.note-col {
+    width: auto;
+}
+
+.sub-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.sub-table td {
+    border: 0;
+    padding: 0 0 2px;
+    vertical-align: top;
+}
+
+.sub-label {
+    width: 165px;
+}
+
+.sub-colon {
+    width: 14px;
+    text-align: center;
+}
+
+.followers-header-cell {
+    background: #e5e5e5;
+    font-weight: bold;
+    font-size: 10pt;
+    text-align: center;
+}
+
+.followers-title-cell {
+    font-weight: bold;
+    font-size: 10pt;
+    text-transform: uppercase;
+}
+
+.followers-name-cell {
+    font-size: 10pt;
+    padding-left: 5px !important;
+}
+
+.followers-birthdate-cell {
+    font-size: 10pt;
+    text-align: center;
+}
+
+.followers-name-cell ~ td {
+    font-size: 10pt;
+}
+
+.footer {
+    width: 280px;
+    max-width: 100%;
+    margin-left: auto;
+    margin-top: 26px;
+    line-height: 1.2;
+}
+
+.signature-space {
+    height: 60px;
+}
+
+.signature-name {
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.signature-name-no-underline {
+    text-decoration: none;
+}
+
+.empty-state {
+    font-style: italic;
+}
+
+@supports not (zoom: 1) {
+    @media screen {
+        .document-body-scale {
+            /* width: calc(100% / var(--content-scale)); */
+            transform: scale(var(--content-scale));
+        }
+    }
+}
+
+@media print {
+    body {
+        background: #fff;
+    }
+
+    .page {
+        width: auto;
+        min-height: auto;
+        margin: 0;
+        box-shadow: none;
+    }
+
+    .letterhead-shell {
+        padding: 0;
+    }
+
+    .document-body-frame {
+        margin: 0;
+    }
+
+    .document-body-scale {
+        width: 100%;
+        zoom: 1;
+        transform: none;
+        transform-origin: top left;
+    }
+
+    body[data-force-print-scale="true"] .document-body-scale {
+        /* width: calc(100% / var(--content-scale)); */
+        zoom: var(--content-scale);
+    }
+
+    body[data-force-print-margins="true"] .letterhead-shell {
+        padding: var(--letterhead-top-padding) var(--letterhead-side-padding) 0;
+    }
+
+    body[data-force-print-margins="true"] .document-body-frame {
+        margin:
+            var(--document-margin-top)
+            var(--document-margin-right)
+            var(--document-margin-bottom)
+            var(--document-margin-left);
+    }
+}
+
+@supports not (zoom: 1) {
+    @media print {
+        body[data-force-print-scale="true"] .document-body-scale {
+            /* width: calc(100% / var(--content-scale)); */
+            transform: scale(var(--content-scale));
+        }
+    }
+}
+</style>
+</head>
+<body>
+<div class="page">
+    <div class="sheet">
+        <div class="letterhead-shell">
+            {% include "components/pdf/kop_surat.html" %}
+        </div>
+
+        <div class="document-body-frame">
+            <div class="document-body-scale">
+                {% if kop_surat.header_text %}
+                <div class="pdf-header">{{ kop_surat.header_text }}</div>
+                {% endif %}
+
+                <table class="meta-table">
+                    <tr>
+                        <td style="width: 53%;"></td>
+                        <td class="meta-label">Lembar ke</td>
+                        <td class="meta-colon">:</td>
+                        <td>................................</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td class="meta-label">Kode No</td>
+                        <td class="meta-colon">:</td>
+                        <td>800.1.11.1</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td class="meta-label">Nomor </td>
+                        <td class="meta-colon">:</td>
+                        <td>{% if nomor_spd or nomor_spt %}{{ nomor_spd|default:nomor_spt }}{% else %}&nbsp;{% endif %}</td>
+                    </tr>
+                </table>
+
+                <div class="document-title">
+                    <div class="document-title-body">
+                        <div class="title-text">SURAT PERJALANAN DINAS (SPD)</div>
+                    </div>
+                </div>
+
+                <table class="main-table">
+                    <colgroup>
+                        <col class="number-col">
+                        <col class="label-col">
+                        <col class="detail-col">
+                        <col class="birthdate-col">
+                        <col class="note-col">
+                    </colgroup>
+                    <tr>
+                        <td class="number-col">1</td>
+                        <td colspan="2" class="label-col">Pejabat Pembuat Komitmen</td>
+                        <td colspan="2">
+                            {{ penandatangan_dokumen.nama|default:"-" }}
+                            {% comment %} {% if penandatangan_dokumen.nip %}<br>Nip. {{ penandatangan_dokumen.nip }}{% endif %}
+                            {% if penandatangan_dokumen.pangkat %}<br>{{ penandatangan_dokumen.pangkat }}{% endif %}
+                            <br>{{ signature_title|default:"-" }} {% endcomment %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="number-col">2</td>
+                        <td colspan="2" class="label-col">Nama/Nip Pegawai yang melaksanakan perjalanan dinas</td>
+                        <td colspan="2">
+                            {% if primary_pelaksana %}
+                                {{ primary_pelaksana.nama.nama|default:"-" }}
+                                {% if primary_pelaksana.nama.nip %}<br>Nip. {{ primary_pelaksana.nama.nip}}{% endif %}
+                            {% else %}
+                                <span class="empty-state">Belum ada pelaksana.</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="number-col">3</td>
+                        <td colspan="2" class="label-col">
+                            a. Pangkat dan Golongan<br>
+                            b. Jabatan/ Instansi<br>
+                            c. Tingkat Biaya Perjalanan Dinas
+                        </td>
+                        <td colspan="2">
+                            {% if primary_pelaksana %}
+                                a. {{ primary_pelaksana.nama.pangkat|default:"-" }}<br>
+                                b. {{ primary_pelaksana.nama.jabatan|default:"-" }}<br>
+                                c. {{ primary_pelaksana.nama.tingkat|default:"-" }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="number-col">4</td>
+                        <td colspan="2" class="label-col">Maksud Perjalanan Dinas</td>
+                        <td colspan="2">{{ spt.berita|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <td class="number-col">5</td>
+                        <td colspan="2" class="label-col">Alat Angkutan yang dipergunakan</td>
+                        <td colspan="2">{{ spt.get_kendaraan_display|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <td class="number-col">6</td>
+                        <td colspan="2" class="label-col">
+                            a. Tempat berangkat<br>
+                            b. Tempat Tujuan
+                        </td>
+                        <td colspan="2">
+                            a. {{ signature_location }}<br>
+                            b. {{ kota_tujuan_text|default:"-" }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="number-col">7</td>
+                        <td colspan="2" class="label-col">
+                            a. Lamanya Perjalanan Dinas<br>
+                            b. Tanggal berangkat<br>
+                            c. Tanggal harus kembali/tiba di tempat baru *)
+                        </td>
+                        <td colspan="2">
+                            a. {{ spt.lama_perjalanan }} ({{ spt.lama_perjalanan|number_to_words }}) hari<br>
+                            b. {{ spt.tgl_berangkat|date:"d F Y" }}<br>
+                            c. {{ spt.tgl_kembali|date:"d F Y" }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="number-col" rowspan="{% if show_followers %}{{ followers|length|add:'2' }}{% else %}2{% endif %}">8</td>
+                        <td colspan="2" class="followers-title-cell">PENGIKUT :</td>
+                        <td colspan="2"></td>
+                    </tr>
+                    {% if show_followers %}
+                        <tr>
+                            <td colspan="2" class="followers-header-cell">NAMA</td>
+                            <td class="followers-header-cell">Tanggal Lahir</td>
+                            <td class="followers-header-cell">Keterangan</td>
+                        </tr>
+                        {% for follower in followers %}
+                            <tr>
+                                <td colspan="2" class="followers-name-cell">
+                                    {{ forloop.counter }}.
+                                    {{ follower.nama.nama|default:"-" }}
+                                    <!-- {% if follower.nama.nip %}
+                                        - {{ follower.nama.nip}}
+                                    {% endif %} -->
+                                </td>
+                                <td class="followers-birthdate-cell">{{ follower.nama.tgl_lahir|date:"d-m-Y"|default:"-" }}</td>
+                                <td>{{ follower.nama.jabatan|default:"-" }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4">-</td>
+                        </tr>
+                    {% endif %}
+                    <tr>
+                        <td class="number-col">9</td>
+                        <td colspan="2" class="label-col">
+                            Pembebanan Anggaran<br>
+                            a. SKPD<br>
+                            b. Kode Rekening
+                        </td>
+                        <td colspan="2">
+                            <br>
+                            a. {{ asal_instansi|default:"-" }}<br>
+                            b. -
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="number-col">10</td>
+                        <td colspan="2" class="label-col">Keterangan</td>
+                        <td colspan="2">-</td>
+                    </tr>
+                </table>
+
+                <div class="footer">
+                    Dikeluarkan di {{ signature_location }}<br>
+                    Tanggal {{ tanggal_dokumen|date:"d F Y" }}<br>
+                    {{ signature_title|default:"-" }},<br>
+
+                    <div class="signature-space"></div>
+
+                    <div class="signature-name-no-underline">{{ penandatangan_dokumen.nama|default:"-" }}</div>
+                    {% if show_signature_identity_details and penandatangan_dokumen.nip %}
+                        Nip. {{ penandatangan_dokumen.nip}}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include "components/pdf/page_footer.html" %}
+
+{% if auto_print %}
+<script>
+window.addEventListener("load", function () {
+    window.print();
+});
+</script>
+{% endif %}
+</body>
+</html>

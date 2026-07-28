@@ -8,10 +8,18 @@ class Pangkat(models.Model):
     class Meta:
         verbose_name = "Pangkat"
         verbose_name_plural = "Pangkat"
-        ordering = ["pangkat"]
+        ordering = ["golongan", "ruang"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['pangkat', 'golongan', 'ruang'],
+                name='unique_pangkat_golongan_ruang'
+            )
+        ]
 
     def __str__(self):
-        return f"{self.pangkat}/ ({self.golongan}.{self.ruang})"
+        if self.ruang:
+            return f"{self.pangkat} / {self.golongan}.{self.ruang}"
+        return f"{self.pangkat} / {self.golongan}"
 
 class Eselon(models.Model):
     eselon = models.CharField(max_length=255)
@@ -25,16 +33,53 @@ class Eselon(models.Model):
     def __str__(self):
         return f"{self.eselon}"
 
+class JenisJabatan(models.Model):
+    nama = models.CharField(max_length=150, unique=True)
+    keterangan= models.CharField(max_length=200, null=True, blank=True)
+    fungsi= models.CharField(max_length=200, null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Jenis Jabatan"
+        verbose_name_plural = "Jenis Jabatan"
+        ordering = ["id"]
+
+    def __str__(self):
+        return self.nama
+
+class StatusASN(models.Model):
+    nama = models.CharField(max_length=100, unique=True)
+
+    class Meta:
+        verbose_name = "Status ASN"
+        verbose_name_plural = "Status ASN"
+        ordering = ["id"]
+
+    def __str__(self):
+        return self.nama
+
 class Bidang(models.Model):
     bidang = models.CharField(max_length=255)
 
     class Meta:
         verbose_name = "Bidang"
         verbose_name_plural = "Bidang"
-        ordering = ["bidang"]
+        ordering = ["id"]
 
     def __str__(self):
         return f"{self.bidang}"
+
+class Tugas(models.Model):
+    nama = models.CharField(max_length=200, unique=True)
+    keterangan = models.CharField(max_length=200, null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Tugas"
+        verbose_name_plural = "Tugas"
+        ordering = ["id"]
+
+    def __str__(self):
+        return self.nama
+
 
 class Pegawai(models.Model):
     nip = models.CharField(max_length=30, unique=True)
@@ -42,6 +87,10 @@ class Pegawai(models.Model):
     pangkat = models.ForeignKey(Pangkat, on_delete=models.CASCADE, related_name="pegawais")
     eselon = models.ForeignKey(Eselon, on_delete=models.CASCADE, related_name="pegawais")
     bidang = models.ForeignKey(Bidang, on_delete=models.CASCADE, related_name="pegawais")
+    tugas = models.ManyToManyField(Tugas, related_name="pegawais", blank=True)
+    jabatan = models.CharField(max_length=255)
+    jenis_jabatan = models.ForeignKey(JenisJabatan, on_delete=models.CASCADE, related_name="pegawais")
+    status_asn = models.ForeignKey(StatusASN, on_delete=models.CASCADE, related_name="pegawais")
     sub_opd = models.ForeignKey('opd.SubOPD', on_delete=models.CASCADE, related_name="pegawais")
 
     class Meta:

@@ -1,6 +1,6 @@
 from django import forms
 from config.forms import BaseAppModelForm
-from .models import Pegawai, Bidang, Eselon, Pangkat
+from .models import Pegawai, Bidang, Eselon, Pangkat, JenisJabatan, StatusASN, Tugas
 
 class PangkatForm(BaseAppModelForm):
     class Meta:
@@ -17,8 +17,23 @@ class EselonForm(BaseAppModelForm):
         model = Eselon
         fields = ["eselon", "urutan"]
 
+class JenisJabatanForm(BaseAppModelForm):
+    class Meta:
+        model = JenisJabatan
+        fields = ["nama", "keterangan", "fungsi"]
+
+class StatusASNForm(BaseAppModelForm):
+    class Meta:
+        model = StatusASN
+        fields = ["nama"]
+
+class TugasForm(BaseAppModelForm):
+    class Meta:
+        model = Tugas
+        fields = ["nama", "keterangan"]
+
 class PegawaiForm(BaseAppModelForm):
     class Meta:
         model = Pegawai
-        fields = ["nip", "nama", "sub_opd"]
+        fields = ["nip", "nama", "pangkat","eselon","bidang","tugas","jabatan","jenis_jabatan","status_asn","sub_opd"]
 
