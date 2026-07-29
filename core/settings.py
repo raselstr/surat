@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "menus",
     "opd",
     "pegawai",
+    "surat",
 ]
 
 MIDDLEWARE = [

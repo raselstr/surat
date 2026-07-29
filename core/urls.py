@@ -31,6 +31,7 @@ urlpatterns = [
     path("", include('menus.urls')),
     path("", include('opd.urls')),
     path("", include('pegawai.urls')),
+    path("", include('surat.urls')),
 ]
 
 if settings.DEBUG:
