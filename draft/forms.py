@@ -11,13 +11,13 @@ class JenisDokumenForm(BaseAppModelForm):
 
 class DraftSuratForm(BaseAppModelForm):
     field_layout ={
-        "jenis_dokumen": 4,
-        "nomor": 2,
-        "sifat": 4,
-        "lampiran": 4,
-        "hal": 4,
-        "dari": 4,
-        "alamat": 12,
+        "jenis_dokumen": 3,
+        "nomor": 3,
+        "sifat": 3,
+        "lampiran": 3,
+        "hal": 12,
+        "dari": 8,
+        "alamat": 4,
         "pembuka": 12,
         "isi": 12,
         "penutup": 12,
@@ -28,17 +28,13 @@ class DraftSuratForm(BaseAppModelForm):
         model = DraftSurat
         fields = ["jenis_dokumen", "nomor", "sifat", "lampiran", "hal", "dari", "alamat", "pembuka", "isi", "penutup", "tembusan", "pejabat_penandatangan"]
         widgets = {
-            "nomor": forms.TextInput(attrs={
+            "dari": forms.TextInput(attrs={
                 "class": "form-control",
-                "placeholder": "Masukkan nomor surat, misal: 001/UN.01.01/2023"
+                "placeholder": "isi jika akan membuat Nota Dinas"
             }),
-            "pembuka": forms.Textarea(attrs={
+            "alamat": forms.TextInput(attrs={
                 "class": "form-control",
-                "rows": 4,
-                "placeholder": (
-                    "Masukkan pembuka surat, "
-                    "misal: Dengan hormat, Sehubungan dengan ..."
-                ),
+                "placeholder": "Kosongkan jika tidak ada"
             }),
         }
 
