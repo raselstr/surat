@@ -1,0 +1,101 @@
+{% load url_extras %}
+
+<div class="row g-3">
+  {% for field in form %}
+    {% if field.is_hidden %}
+      {{ field }}
+    {% else %}
+      <div class="{{ form.normalized_field_layout|get_item:field.name|default:'col-md-12' }}">
+        {% if field.field.widget.input_type == "checkbox" %}
+          <div class="form-check pt-2">
+            {{ field }}
+            <label class="form-check-label" for="{{ field.id_for_label }}">
+              {{ field.label }}
+            </label>
+          </div>
+        {% else %}
+          <label class="form-label fw-semibold" for="{{ field.id_for_label }}">
+            {{ field.label }}
+            {% if field.field.required %}
+              <span class="text-danger">*</span>
+            {% endif %}
+          </label>
+
+          {% with is_photo_upload=field.field.widget.attrs|get_item:"data-spj-camera-upload" %}
+            {% if is_photo_upload %}
+              <div class="spj-photo-field" data-spj-photo-field="1">
+                <div class="d-flex gap-2 flex-wrap mb-2">
+                  <label
+                    class="btn btn-outline-primary btn-sm mb-0"
+                    for="{{ field.id_for_label }}">
+                    Galeri HP
+                  </label>
+                  <label
+                    class="btn btn-primary btn-sm mb-0"
+                    for="{{ field.id_for_label }}_camera">
+                    Kamera
+                  </label>
+                </div>
+                <div class="small text-muted mb-2" data-spj-photo-status>
+                  Galeri HP membuka foto tersimpan. Kamera mengambil foto baru. Jika kamera/galeri tidak muncul, aktifkan izin Kamera dan Foto/File untuk browser yang dipakai.
+                </div>
+                <div class="d-none" data-spj-gallery-input>
+                  {{ field }}
+                </div>
+                <input
+                  type="file"
+                  id="{{ field.id_for_label }}_camera"
+                  name="{{ field.html_name }}"
+                  accept="image/jpeg,image/png,image/webp"
+                  capture="environment"
+                  class="d-none"
+                  data-spj-camera-source="{{ field.id_for_label }}"
+                  data-spj-geotag-upload="1">
+              </div>
+            {% else %}
+              {{ field }}
+            {% endif %}
+          {% endwith %}
+
+          {% with existing_file=form.existing_files|get_item:field.name %}
+            {% if existing_file %}
+              <div class="border rounded-3 bg-light p-3 mt-2">
+                <div class="small text-muted mb-2">File saat ini</div>
+
+                {% if existing_file.is_image and existing_file.url %}
+                  <img
+                    src="{{ existing_file.url }}"
+                    alt="{{ field.label }}"
+                    class="img-fluid rounded border"
+                    loading="lazy"
+                    decoding="async"
+                    style="max-height: 180px;">
+                {% endif %}
+
+                {% if existing_file.url %}
+                  <div class="small mt-2">
+                    <a href="{{ existing_file.url }}" target="_blank" rel="noopener">
+                      {{ existing_file.name }}
+                    </a>
+                  </div>
+                {% else %}
+                  <div class="small mt-2 text-muted">{{ existing_file.name }}</div>
+                {% endif %}
+              </div>
+            {% endif %}
+          {% endwith %}
+        {% endif %}
+
+        {% if field.help_text %}
+          <div class="form-text">{{ field.help_text }}</div>
+        {% endif %}
+
+        {% if field.errors %}
+          <div class="text-danger small mt-1">
+            {{ field.errors|striptags }}
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+  {% endfor %}
+</div>

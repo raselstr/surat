@@ -1,4 +1,5 @@
 {% load formatting %}
+{% load url_extras %}
 
 <form
   method="post"
@@ -11,55 +12,118 @@
     hx-encoding="multipart/form-data"
   {% endif %}
   novalidate>
+
   {% csrf_token %}
 
   {% if form.non_field_errors %}
-    <div class="alert alert-danger py-2">{{ form.non_field_errors }}</div>
+    <div class="alert alert-danger py-2">
+      {{ form.non_field_errors }}
+    </div>
   {% endif %}
 
   <div class="row g-3">
     {% for field in form %}
-      {% with existing_file=form.existing_files|dict_get:field.name %}
-      <div class="col-md-6">
+      {% with existing_file=form.existing_files|get_item:field.name %}
+
+      <div class="{{ form.normalized_field_layout|get_item:field.name|default:'col-md-12' }}">
+
         {% if field.field.widget.input_type == "checkbox" %}
+
           <div class="form-check mt-4">
             {{ field }}
-            <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            <label class="form-check-label" for="{{ field.id_for_label }}">
+              {{ field.label }}
+            </label>
           </div>
+
         {% else %}
-          <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-          {% if existing_file.is_image and existing_file.url %}
-            <div class="crud-image-preview mb-2" style="width:56px;height:56px;max-width:56px;max-height:56px;overflow:hidden;">
-              <img src="{{ existing_file.url }}" alt="{{ field.label }}" width="56" height="56" style="width:56px;height:56px;max-width:56px;max-height:56px;object-fit:cover;">
-            </div>
-          {% endif %}
+
+          <label class="form-label fw-semibold" for="{{ field.id_for_label }}">
+            {{ field.label }}
+            {% if field.field.required %}
+              <span class="text-danger">*</span>
+            {% endif %}
+          </label>
+
           {{ field }}
-          {% if existing_file and not existing_file.is_image and existing_file.url %}
-            <div class="form-text">
-              File saat ini: <a href="{{ existing_file.url }}" target="_blank" rel="noopener">{{ existing_file.name }}</a>
+
+          {% if existing_file %}
+
+            <div class="border rounded-3 bg-light p-3 mt-2">
+
+              <div class="small text-muted mb-2">
+                File saat ini
+              </div>
+
+              {% if existing_file.is_image and existing_file.url %}
+
+                <img
+                  src="{{ existing_file.url }}"
+                  alt="{{ field.label }}"
+                  class="img-fluid rounded border"
+                  loading="lazy"
+                  decoding="async"
+                  style="max-height: 180px;">
+
+              {% endif %}
+
+              {% if existing_file.url %}
+
+                <div class="small mt-2">
+                  <a href="{{ existing_file.url }}" target="_blank" rel="noopener">
+                    {{ existing_file.name }}
+                  </a>
+                </div>
+
+              {% else %}
+
+                <div class="small mt-2 text-muted">
+                  {{ existing_file.name }}
+                </div>
+
+              {% endif %}
+
             </div>
+
           {% endif %}
+
         {% endif %}
+
         {% if field.help_text %}
-          <div class="form-text">{{ field.help_text }}</div>
+          <div class="form-text">
+            {{ field.help_text }}
+          </div>
         {% endif %}
+
         {% if field.errors %}
-          <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
+          <div class="text-danger small mt-1">
+            {{ field.errors|striptags }}
+          </div>
         {% endif %}
+
       </div>
+
       {% endwith %}
     {% endfor %}
   </div>
 
   <div class="{% if use_modal %}modal-footer{% else %}d-flex justify-content-end gap-2{% endif %} px-0 pb-0 mt-4">
+
     {% if use_modal %}
-      <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">Batal</button>
+      <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">
+        Batal
+      </button>
     {% else %}
-      <a href="{{ url_list }}" class="btn btn-light-secondary">Batal</a>
+      <a href="{{ url_list }}" class="btn btn-light-secondary">
+        Batal
+      </a>
     {% endif %}
+
     <button type="submit" class="btn btn-primary">
       <i class="ti ti-device-floppy"></i>
       <span>{{ submit_label|default:"Simpan Data" }}</span>
     </button>
+
   </div>
+
 </form>
