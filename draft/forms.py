@@ -37,11 +37,6 @@ class DraftSuratForm(BaseAppModelForm):
                 "placeholder": "Kosongkan jika tidak ada"
             }),
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        print(self.normalized_field_layout)
-        
 class UndanganForm(BaseAppModelForm):
     class Meta:
         model = Undangan
