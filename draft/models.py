@@ -52,7 +52,7 @@ class Undangan(models.Model):
     tanggalmulai = models.DateField()
     tanggalselesai = models.DateField()
     jammulai = models.TimeField()
-    jamselesai = models.TimeField()
+    jamselesai = models.CharField(max_length=255)
     tempat = models.CharField(max_length=255)
     agenda = models.TextField()
     perlengkapan = models.TextField()

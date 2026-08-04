@@ -33,6 +33,7 @@ urlpatterns = [
     path("", include('pegawai.urls')),
     path("", include('surat.urls')),
     path("", include('arsip.urls')),
+    path("", include('draft.urls')),
 ]
 
 if settings.DEBUG:
