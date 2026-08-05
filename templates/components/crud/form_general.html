@@ -107,6 +107,109 @@
     {% endfor %}
   </div>
 
+  {% for title, subform in extra_forms %}
+
+    <hr class="my-4">
+
+    <h5 class="mb-3">
+        {{ title }}
+    </h5>
+
+    {% if subform.non_field_errors %}
+    <div class="alert alert-danger py-2">
+        {{ subform.non_field_errors }}
+    </div>
+    {% endif %}
+
+    <div class="row g-3">
+
+        {% for field in subform %}
+
+            {% with existing_file=subform.existing_files|get_item:field.name %}
+
+            <div class="{{ subform.normalized_field_layout|get_item:field.name|default:'col-md-12' }}">
+
+                {% if field.field.widget.input_type == "checkbox" %}
+
+                    <div class="form-check mt-4">
+                        {{ field }}
+                        <label class="form-check-label" for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                        </label>
+                    </div>
+
+                {% else %}
+
+                    <label class="form-label fw-semibold" for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                        {% if field.field.required %}
+                            <span class="text-danger">*</span>
+                        {% endif %}
+                    </label>
+
+                    {{ field }}
+
+                    {% if existing_file %}
+
+                        <div class="border rounded-3 bg-light p-3 mt-2">
+
+                            <div class="small text-muted mb-2">
+                                File saat ini
+                            </div>
+
+                            {% if existing_file.is_image and existing_file.url %}
+
+                                <img
+                                    src="{{ existing_file.url }}"
+                                    class="img-fluid rounded border"
+                                    style="max-height:180px;">
+
+                            {% endif %}
+
+                            {% if existing_file.url %}
+
+                                <div class="small mt-2">
+                                    <a href="{{ existing_file.url }}" target="_blank">
+                                        {{ existing_file.name }}
+                                    </a>
+                                </div>
+
+                            {% else %}
+
+                                <div class="small mt-2 text-muted">
+                                    {{ existing_file.name }}
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    {% endif %}
+
+                {% endif %}
+
+                {% if field.help_text %}
+                    <div class="form-text">
+                        {{ field.help_text }}
+                    </div>
+                {% endif %}
+
+                {% if field.errors %}
+                    <div class="text-danger small mt-1">
+                        {{ field.errors|striptags }}
+                    </div>
+                {% endif %}
+
+            </div>
+
+            {% endwith %}
+
+        {% endfor %}
+
+    </div>
+
+  {% endfor %}
+
   <div class="{% if use_modal %}modal-footer{% else %}d-flex justify-content-end gap-2{% endif %} px-0 pb-0 mt-4">
 
     {% if use_modal %}

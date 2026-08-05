@@ -1,5 +1,7 @@
-from config.crud.base import FullAccessCRUDView
-
+from config.crud.base import (
+    FullAccessCRUDView,
+    BaseOneToOneCRUDView,
+)
 from .forms import DraftSuratForm, JenisDokumenForm, TujuanSuratForm, UndanganForm
 from .models import JenisDokumen, DraftSurat, Undangan, TujuanSurat
 from .tables import DraftSuratTable, JenisDokumenTable, TujuanSuratTable, UndanganTable
@@ -14,15 +16,21 @@ class JenisDokumenListView(FullAccessCRUDView):
     url_action = "/jenis_dokumen/"
     url_action_pk = "/jenis_dokumen/"
 
-class DraftSuratListView(FullAccessCRUDView):
+class DraftSuratListView(BaseOneToOneCRUDView):
     model = DraftSurat
     form_class = DraftSuratForm
     table_class = DraftSuratTable
+
     title = "Draft Surat"
+
     url_list = "/draft_surat/"
     url_action = "/draft_surat/"
     url_action_pk = "/draft_surat/"
 
+    extra_forms = {
+        "tujuansurat": TujuanSuratForm,
+        "undangan": UndanganForm,
+    }
 class UndanganListView(FullAccessCRUDView):
     model = Undangan
     form_class = UndanganForm

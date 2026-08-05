@@ -37,12 +37,29 @@ class DraftSuratForm(BaseAppModelForm):
                 "placeholder": "Kosongkan jika tidak ada"
             }),
         }
+
 class UndanganForm(BaseAppModelForm):
+
+    field_layout = {
+        "tanggalmulai": 3,
+        "tanggalselesai": 3,
+        "jammulai": 3,
+        "jamselesai": 3,
+        "tempat": 12,
+        "agenda": 12,
+        "perlengkapan": 12,
+    }
+
     class Meta:
         model = Undangan
-        fields = ["draft_surat", "tanggalmulai", "tanggalselesai", "jammulai", "jamselesai", "tempat", "agenda", "perlengkapan"]
+        exclude = ["draft_surat"]
 
 class TujuanSuratForm(BaseAppModelForm):
+
+    field_layout = {
+        "instansi": 12,
+    }
+
     class Meta:
         model = TujuanSurat
-        fields = ["draft_surat", "instansi"]
+        exclude = ["draft_surat"]

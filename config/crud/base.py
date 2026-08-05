@@ -642,6 +642,149 @@ class BaseMasterDetailCRUDView(BaseCRUDView):
 
         return render(request, self.get_form_template_name(request), context)
 
+class BaseOneToOneCRUDView(BaseCRUDView):
+    """
+    CRUD untuk Parent dengan beberapa relasi OneToOne.
+
+    Contoh:
+        DraftSurat
+            ├── TujuanSurat
+            └── Undangan
+    """
+
+    extra_forms = {}
+
+    def get_extra_forms(self, request, instance=None):
+        forms = {}
+
+        for related_name, form_class in self.extra_forms.items():
+
+            related_instance = None
+
+            if instance:
+                try:
+                    related_instance = getattr(instance, related_name)
+                except Exception:
+                    related_instance = None
+
+            kwargs = {
+                "data": request.POST or None,
+                "files": request.FILES or None,
+                "instance": related_instance,
+            }
+
+            if getattr(form_class, "accepts_request", False):
+                kwargs["request"] = request
+
+            forms[related_name] = form_class(**kwargs)
+
+        return forms
+
+    def form_view(self, request, pk=None):
+
+        perm = self.get_permission()
+
+        if pk:
+            if not perm or not perm.can_edit:
+                return self._forbidden(request)
+        else:
+            if not perm or not perm.can_add:
+                return self._forbidden(request)
+
+        instance = None
+
+        if pk:
+            instance = get_object_or_404(
+                self.get_object_queryset(),
+                pk=pk,
+            )
+
+        form = self.get_form(request, instance=instance)
+        extra_forms = self.get_extra_forms(request, instance)
+
+        if request.method == "POST":
+
+            valid = form.is_valid()
+
+            for child_form in extra_forms.values():
+                valid = valid and child_form.is_valid()
+
+            if valid:
+
+                with transaction.atomic():
+
+                    parent = form.save()
+
+                    for child_form in extra_forms.values():
+
+                        child = child_form.save(commit=False)
+
+                        linked = False
+
+                        for field in child._meta.fields:
+
+                            if isinstance(field, (models.OneToOneField, models.ForeignKey)):
+                                if field.related_model == parent.__class__:
+                                    setattr(child, field.name, parent)
+                                    linked = True
+                                    break
+
+                        if not linked:
+                            raise ValueError(
+                                f"Tidak ditemukan relasi ke {parent.__class__.__name__}"
+                            )
+
+                        child.save()
+
+                action = "update" if instance else "add"
+
+                if request.headers.get("HX-Request"):
+                    return self._build_htmx_success_response(action)
+
+                self._add_success_message(request, action)
+
+                return redirect(
+                    self.get_success_redirect_url()
+                )
+
+        context = {
+            "form": form,
+            "extra_forms": [
+                (
+                    related_name.replace("_", " ").title(),
+                    frm,
+                )
+                for related_name, frm in extra_forms.items()
+            ],
+            "title": self.title,
+            "permission": perm,
+            "url_list": self.url_list,
+            "form_action": request.path,
+            "submit_label": (
+                "Simpan Perubahan"
+                if instance else
+                "Simpan Data"
+            ),
+            "is_multipart_form": any(
+                f.is_multipart()
+                for f in [form, *extra_forms.values()]
+            ),
+            "use_modal": request.headers.get("HX-Request"),
+            "template_form": self.template_form,
+        }
+
+        if request.method == "POST" and request.headers.get("HX-Request"):
+            return self._build_htmx_error_response(
+                request,
+                context,
+                form,
+            )
+
+        return render(
+            request,
+            self.get_form_template_name(request),
+            context,
+        )
 class FullAccessCRUDView(BaseCRUDView):
     def get_permission(self):
         return SimpleNamespace(can_view=True, can_add=True, can_edit=True, can_delete=True)
@@ -651,3 +794,17 @@ class FullAccessCRUDView(BaseCRUDView):
         context["form"] = self.get_form(self.request)
         context["search_query"] = self.request.GET.get("search", "")
         return context
+
+class BaseMultiFormCRUDView(BaseCRUDView):
+    extra_forms = {}
+
+    def get_extra_forms(self, request, instance=None):
+        forms = {}
+
+        for name, form_class in self.extra_forms.items():
+            forms[name] = form_class(
+                data=request.POST or None,
+                files=request.FILES or None,
+            )
+
+        return forms
