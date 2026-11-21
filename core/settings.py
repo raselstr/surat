@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     "opd",
     "pegawai",
     "surat",
+    "arsip",
+    "draft",
 ]
 
 MIDDLEWARE = [
